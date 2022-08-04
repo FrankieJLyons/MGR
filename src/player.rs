@@ -1,8 +1,9 @@
 use bevy::prelude::*;
+use bevy_inspector_egui::Inspectable;
 
 pub struct PlayerPlugin;
 
-#[derive(Component)]
+#[derive(Component, Inspectable)]
 pub struct Player {
     speed: f32,
 }

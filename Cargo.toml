@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 bevy = {version = "0.8.0", features = ["dynamic"]}
+bevy-inspector-egui = "0.12.0"
 
 [profile.dev]
 opt-level = 1

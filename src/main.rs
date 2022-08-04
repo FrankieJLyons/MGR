@@ -4,6 +4,9 @@ use bevy::{prelude::*, render::camera::ScalingMode, render::texture::ImageSettin
 mod player;
 use player::PlayerPlugin;
 
+mod debug;
+use debug::DebugPlugin;
+
 pub const CLEAR: Color = Color::rgb(0.0, 0.0, 0.0);
 pub const HEIGHT: f32 = 512.0;
 pub const RESOLUTION: f32 = 16.0 / 9.0;
@@ -26,6 +29,7 @@ fn main() {
         .add_startup_system(spawn_camera)
         .add_startup_system_to_stage(StartupStage::PreStartup, load_map)
         .add_plugins(DefaultPlugins)
+        .add_plugin(DebugPlugin)
         .add_plugin(PlayerPlugin)
         .run();
 }
