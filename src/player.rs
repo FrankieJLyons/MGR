@@ -1,6 +1,10 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
+// use crate::image::{self, spawn_image_sprite, ImageSheet};
+use crate::image::spawn_image_sprite;
+use crate::SNAKE_SIZE;
+
 pub struct PlayerPlugin;
 
 #[derive(Component, Inspectable)]
@@ -11,7 +15,7 @@ pub struct Player {
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(spawn_player)
-            .add_system(animate_sprite)
+            // .add_system(animate_sprite)
             .add_system(move_player);
     }
 }
@@ -19,43 +23,25 @@ impl Plugin for PlayerPlugin {
 fn spawn_player(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut atlases: ResMut<Assets<TextureAtlas>>,
+    atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let image = asset_server.load("snake/snake_walking.png");
-    let offset: Vec2 = Vec2::splat(1.0);
-    let atlas =
-        TextureAtlas::from_grid_with_padding(image, crate::SNAKE_TILE, 3, 1, offset, offset);
-    let atlas_handle = atlases.add(atlas);
+    let player = spawn_image_sprite(
+        &mut commands,
+        asset_server,
+        atlases,
+        "snake/snake_walking.png",
+        Vec3::new(0.0, 0.0, 900.0),
+        SNAKE_SIZE,
+        3,
+        1,
+        Vec2::splat(1.0),
+        Vec2::splat(1.0),
+    );
 
     commands
-        .spawn_bundle(SpriteSheetBundle {
-            texture_atlas: atlas_handle,
-            transform: Transform::from_scale(Vec3::splat(1.0)),
-            ..default()
-        })
-        .insert(AnimationTimer(Timer::from_seconds(0.25, true)))
+        .entity(player)
+        .insert(Name::new("Player"))
         .insert(Player { speed: 100.0 });
-}
-
-#[derive(Component, Deref, DerefMut)]
-struct AnimationTimer(Timer);
-
-fn animate_sprite(
-    time: Res<Time>,
-    texture_atlases: Res<Assets<TextureAtlas>>,
-    mut query: Query<(
-        &mut AnimationTimer,
-        &mut TextureAtlasSprite,
-        &Handle<TextureAtlas>,
-    )>,
-) {
-    for (mut timer, mut sprite, texture_atlas_handle) in &mut query {
-        timer.tick(time.delta());
-        if timer.just_finished() {
-            let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
-            sprite.index = (sprite.index + 1) % texture_atlas.textures.len();
-        }
-    }
 }
 
 fn move_player(
@@ -64,7 +50,7 @@ fn move_player(
     time: Res<Time>,
 ) {
     let (player, mut transform) = player_query.single_mut();
-    let size: f32 = crate::SNAKE_TILE.x / crate::SNAKE_TILE.y;
+    let size: f32 = SNAKE_SIZE.x / SNAKE_SIZE.y;
     let speed: f32 = player.speed * size * time.delta_seconds();
 
     if keyboard.pressed(KeyCode::W) || keyboard.pressed(KeyCode::Up) {
@@ -80,3 +66,24 @@ fn move_player(
         transform.translation.x += speed
     }
 }
+
+// #[derive(Component, Deref, DerefMut)]
+// struct AnimationTimer(Timer);
+
+// fn animate_sprite(
+//     time: Res<Time>,
+//     texture_atlases: Res<Assets<TextureAtlas>>,
+//     mut query: Query<(
+//         &mut AnimationTimer,
+//         &mut TextureAtlasSprite,
+//         &Handle<TextureAtlas>,
+//     )>,
+// ) {
+//     for (mut timer, mut sprite, texture_atlas_handle) in &mut query {
+//         timer.tick(time.delta());
+//         if timer.just_finished() {
+//             let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
+//             sprite.index = (sprite.index + 1) % texture_atlas.textures.len();
+//         }
+//     }
+// }

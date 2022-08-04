@@ -7,13 +7,17 @@ use player::PlayerPlugin;
 mod debug;
 use debug::DebugPlugin;
 
+mod image;
+use image::ImagePlugin;
+
 pub const CLEAR: Color = Color::rgb(0.0, 0.0, 0.0);
 pub const HEIGHT: f32 = 512.0;
 pub const RESOLUTION: f32 = 16.0 / 9.0;
 pub const ORIGINAL_RESOLUTION: f32 = 4.0 / 3.0;
 pub const ORIGINAL_WIDTH: f32 = 256.0;
 pub const ORIGINAL_HEIGHT: f32 = 212.0;
-pub const SNAKE_TILE: Vec2 = Vec2::new(16.0, 29.0);
+pub const SNAKE_SIZE: Vec2 = Vec2::new(16.0, 29.0);
+pub const MAP_SIZE: Vec2 = Vec2::new(512.0, 384.0);
 
 fn main() {
     App::new()
@@ -27,9 +31,9 @@ fn main() {
             ..Default::default()
         }) // prevents blurry sprites
         .add_startup_system(spawn_camera)
-        .add_startup_system_to_stage(StartupStage::PreStartup, load_map)
         .add_plugins(DefaultPlugins)
         .add_plugin(DebugPlugin)
+        .add_plugin(ImagePlugin)
         .add_plugin(PlayerPlugin)
         .run();
 }
@@ -51,18 +55,4 @@ fn spawn_camera(mut commands: Commands) {
     };
 
     commands.spawn_bundle(camera);
-}
-
-struct Map(Handle<TextureAtlas>);
-
-fn load_map(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut atlases: ResMut<Assets<TextureAtlas>>,
-) {
-    let image = asset_server.load("rooms/MGEAR1_0000.png");
-    let atlas = TextureAtlas::new_empty(image, Vec2::new(ORIGINAL_WIDTH, ORIGINAL_HEIGHT));
-    let atlas_handle = atlases.add(atlas);
-
-    commands.insert_resource(Map(atlas_handle));
 }
