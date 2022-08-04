@@ -1,15 +1,21 @@
 use bevy::{prelude::*, render::texture::ImageSettings};
 
+pub const CLEAR: Color = Color::rgb(0.0, 0.0, 0.0);
+pub const MODERN_HEIGHT: f32 = 512.0;
 pub const RESOLUTION: f32 = 16.0 / 9.0;
+pub const ORIGINAL_RESOLUTION: f32 = 4.0 / 3.0;
+pub const ORIGINAL_WIDTH: f32 = 256.0;
+pub const ORIGINAL_HEIGHT: f32 = 212.0;
+pub const SNAKE_TILE: Vec2 = Vec2::new(16.0, 29.0);
 
 fn main() {
-    let height = 720.0;
     App::new()
         .insert_resource(ImageSettings::default_nearest())
+        .insert_resource(ClearColor(CLEAR))
         .insert_resource(WindowDescriptor {
-            width: height * RESOLUTION,
-            height: height,
-            title: "Bevy Tutorial".to_string(),
+            width: MODERN_HEIGHT * RESOLUTION,
+            height: MODERN_HEIGHT,
+            title: "Metal Gear".to_string(),
             resizable: false,
             ..Default::default()
         }) // prevents blurry sprites
@@ -60,7 +66,7 @@ fn setup(
     commands
         .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
-            transform: Transform::from_scale(Vec3::splat(6.0)),
+            transform: Transform::from_scale(Vec3::splat(2.0)),
             ..default()
         })
         .insert(AnimationTimer(Timer::from_seconds(0.25, true)));
