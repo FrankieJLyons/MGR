@@ -1,7 +1,11 @@
-use bevy::{prelude::*, render::texture::ImageSettings};
+#![allow(clippy::redundant_field_names)]
+use bevy::{prelude::*, render::camera::ScalingMode, render::texture::ImageSettings};
+
+mod player;
+use player::PlayerPlugin;
 
 pub const CLEAR: Color = Color::rgb(0.0, 0.0, 0.0);
-pub const MODERN_HEIGHT: f32 = 512.0;
+pub const HEIGHT: f32 = 512.0;
 pub const RESOLUTION: f32 = 16.0 / 9.0;
 pub const ORIGINAL_RESOLUTION: f32 = 4.0 / 3.0;
 pub const ORIGINAL_WIDTH: f32 = 256.0;
@@ -13,74 +17,48 @@ fn main() {
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(CLEAR))
         .insert_resource(WindowDescriptor {
-            width: MODERN_HEIGHT * RESOLUTION,
-            height: MODERN_HEIGHT,
+            width: HEIGHT * RESOLUTION,
+            height: HEIGHT,
             title: "Metal Gear".to_string(),
             resizable: false,
             ..Default::default()
         }) // prevents blurry sprites
-        .add_plugins(DefaultPlugins)
         .add_startup_system(spawn_camera)
-        .add_startup_system(setup)
-        .add_system(animate_sprite)
+        .add_startup_system_to_stage(StartupStage::PreStartup, load_map)
+        .add_plugins(DefaultPlugins)
+        .add_plugin(PlayerPlugin)
         .run();
-}
-
-#[derive(Component, Deref, DerefMut)]
-struct AnimationTimer(Timer);
-
-fn animate_sprite(
-    time: Res<Time>,
-    texture_atlases: Res<Assets<TextureAtlas>>,
-    mut query: Query<(
-        &mut AnimationTimer,
-        &mut TextureAtlasSprite,
-        &Handle<TextureAtlas>,
-    )>,
-) {
-    for (mut timer, mut sprite, texture_atlas_handle) in &mut query {
-        timer.tick(time.delta());
-        if timer.just_finished() {
-            let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
-            sprite.index = (sprite.index + 1) % texture_atlas.textures.len();
-        }
-    }
-}
-
-fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-) {
-    let texture_handle = asset_server.load("snake/snake_walking.png");
-    let texture_atlas = TextureAtlas::from_grid_with_padding(
-        texture_handle,
-        Vec2::new(16.0, 29.0),
-        3,
-        1,
-        Vec2::splat(1.0),
-        Vec2::splat(1.0),
-    );
-    let texture_atlas_handle = texture_atlases.add(texture_atlas);
-    commands.spawn_bundle(Camera2dBundle::default());
-    commands
-        .spawn_bundle(SpriteSheetBundle {
-            texture_atlas: texture_atlas_handle,
-            transform: Transform::from_scale(Vec3::splat(2.0)),
-            ..default()
-        })
-        .insert(AnimationTimer(Timer::from_seconds(0.25, true)));
 }
 
 fn spawn_camera(mut commands: Commands) {
     let mut camera = Camera2dBundle::default();
 
     //Set the camera to have normalized coordinates of y values -1 to 1
-    camera.projection.top = 1.0;
+    camera.projection.top = 100.0;
     camera.projection.bottom = -1.0;
 
     camera.projection.right = 1.0 * RESOLUTION;
     camera.projection.left = -1.0 * RESOLUTION;
 
+    //Force the camera to use our settings
+    camera.projection.scaling_mode = ScalingMode::Auto {
+        min_width: (256.0),
+        min_height: (212.0),
+    };
+
     commands.spawn_bundle(camera);
+}
+
+struct Map(Handle<TextureAtlas>);
+
+fn load_map(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    let image = asset_server.load("rooms/MGEAR1_0000.png");
+    let atlas = TextureAtlas::new_empty(image, Vec2::new(ORIGINAL_WIDTH, ORIGINAL_HEIGHT));
+    let atlas_handle = atlases.add(atlas);
+
+    commands.insert_resource(Map(atlas_handle));
 }
