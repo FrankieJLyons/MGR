@@ -5,7 +5,7 @@ use bevy_inspector_egui::Inspectable;
 // use crate::image::{self, spawn_image_sprite, ImageSheet};
 use crate::image::spawn_image_sprite;
 use crate::map::TileCollider;
-use crate::{print_data, COLLIDE_SIZE, SNAKE_SIZE};
+use crate::{COLLIDE_SIZE, SNAKE_SIZE};
 
 pub struct PlayerPlugin;
 
