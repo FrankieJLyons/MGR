@@ -10,6 +10,9 @@ use debug::DebugPlugin;
 mod image;
 use image::ImagePlugin;
 
+mod map;
+use map::MapPlugin;
+
 pub const CLEAR: Color = Color::rgb(0.0, 0.0, 0.0);
 pub const HEIGHT: f32 = 512.0;
 pub const RESOLUTION: f32 = 16.0 / 9.0;
@@ -34,6 +37,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(DebugPlugin)
         .add_plugin(ImagePlugin)
+        .add_plugin(MapPlugin)
         .add_plugin(PlayerPlugin)
         .run();
 }
