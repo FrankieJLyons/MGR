@@ -1,6 +1,8 @@
 #![allow(clippy::redundant_field_names)]
 use bevy::{prelude::*, render::camera::ScalingMode, render::texture::ImageSettings};
 
+use std::io::{stdout, Write};
+
 mod player;
 use player::PlayerPlugin;
 
@@ -18,9 +20,10 @@ pub const HEIGHT: f32 = 512.0;
 pub const RESOLUTION: f32 = 16.0 / 9.0;
 pub const ORIGINAL_RESOLUTION: f32 = 4.0 / 3.0;
 pub const ORIGINAL_WIDTH: f32 = 256.0;
-pub const ORIGINAL_HEIGHT: f32 = 212.0;
+pub const ORIGINAL_HEIGHT: f32 = 192.0;
 pub const SNAKE_SIZE: Vec2 = Vec2::new(16.0, 29.0);
 pub const MAP_SIZE: Vec2 = Vec2::new(512.0, 384.0);
+pub const COLLIDE_SIZE: f32 = 8.0;
 
 fn main() {
     App::new()
@@ -59,4 +62,11 @@ fn spawn_camera(mut commands: Commands) {
     };
 
     commands.spawn_bundle(camera);
+}
+
+pub fn print_data(string: String) {
+    let mut stdout = stdout();
+    print!("\r{}", string);
+    stdout.flush().unwrap();
+    println!();
 }
