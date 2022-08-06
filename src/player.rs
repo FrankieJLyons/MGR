@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
 use bevy_inspector_egui::Inspectable;
 
-// use crate::image::{self, spawn_image_sprite, ImageSheet};
 use crate::image::spawn_image_sprite;
 use crate::map::{TileCollider, COLLIDE_SIZE};
 
@@ -35,7 +34,7 @@ fn spawn_player(
         asset_server,
         atlases,
         "snake/snake_walking.png",
-        Vec3::new(0.0, 0.0, 900.0),
+        Vec3::new(0.0, -96.0, 900.0),
         SNAKE_SIZE,
         3,
         1,

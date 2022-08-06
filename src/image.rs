@@ -5,9 +5,7 @@ pub struct ImagePlugin;
 // pub struct ImageSheet(pub Handle<TextureAtlas>);
 
 impl Plugin for ImagePlugin {
-    fn build(&self, app: &mut App) {
-        // app.add_plugins(DefaultPlugins);
-    }
+    fn build(&self, app: &mut App) {}
 }
 
 pub fn spawn_image_sprite(
