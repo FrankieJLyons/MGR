@@ -5,7 +5,17 @@ use std::{
 
 use bevy::prelude::*;
 
-use crate::{print_data, COLLIDE_SIZE, MAP_SIZE, ORIGINAL_HEIGHT, ORIGINAL_WIDTH};
+use crate::{print_data, COLLIDE_SIZE};
+
+pub const RESOLUTION: f32 = 16.0 / 9.0;
+pub const ORIGINAL_RESOLUTION: f32 = 4.0 / 3.0;
+pub const WIDTH: f32 = 800.0;
+pub const HEIGHT: f32 = 450.0;
+pub const ORIGINAL_HEIGHT: f32 = 192.0;
+pub const ORIGINAL_WIDTH: f32 = 256.0;
+pub const MAP_WIDTH: f32 = 512.0;
+pub const MAP_HEIGHT: f32 = 384.0;
+pub const MAP_SIZE: Vec2 = Vec2::new(MAP_WIDTH, MAP_HEIGHT);
 
 pub struct MapPlugin;
 
@@ -54,14 +64,14 @@ fn create_collision_map(mut commands: Commands) {
                 let z = 100.0;
 
                 let translation = Vec3::new(tile_x, tile_y, z);
-                print_data(translation.to_string());
                 let mut color = Color::rgba(1.0, 1.0, 1.0, 0.0);
-
                 let tile = spawn_tile(&mut commands, translation);
+
                 if char == 'x' {
-                    commands.entity(tile).insert(TileCollider);
                     color = Color::rgba(1.0, 1.0, 1.0, 0.5);
+                    commands.entity(tile).insert(TileCollider);
                 }
+
                 tiles.push(tile);
 
                 // collision tile

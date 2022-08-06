@@ -5,8 +5,11 @@ use bevy_inspector_egui::Inspectable;
 // use crate::image::{self, spawn_image_sprite, ImageSheet};
 use crate::image::spawn_image_sprite;
 use crate::map::TileCollider;
-use crate::{COLLIDE_SIZE, SNAKE_SIZE};
+use crate::COLLIDE_SIZE;
 
+pub const SNAKE_SIZE: Vec2 = Vec2::new(16.0, 29.0);
+pub const SNAKE_OFFSET: f32 = SNAKE_SIZE.y / 4.0;
+pub const SNAKE_COLLIDE_SIZE: Vec2 = Vec2::new(SNAKE_SIZE.x * 0.875, SNAKE_SIZE.y / 2.0);
 pub struct PlayerPlugin;
 
 #[derive(Component, Inspectable)]
@@ -94,10 +97,10 @@ fn wall_collision_check(
         let collision = collide(
             Vec3::new(
                 target_player_pos.x,
-                target_player_pos.y - SNAKE_SIZE.y / 4.0,
+                target_player_pos.y - SNAKE_OFFSET,
                 target_player_pos.z,
             ),
-            Vec2::new(14.0, 14.0),
+            SNAKE_COLLIDE_SIZE,
             wall_transform.translation,
             Vec2::splat(COLLIDE_SIZE),
         );

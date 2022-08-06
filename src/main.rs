@@ -13,16 +13,9 @@ mod image;
 use image::ImagePlugin;
 
 mod map;
-use map::MapPlugin;
+use map::{MapPlugin, HEIGHT, RESOLUTION, WIDTH};
 
 pub const CLEAR: Color = Color::rgb(0.0, 0.0, 0.0);
-pub const HEIGHT: f32 = 512.0;
-pub const RESOLUTION: f32 = 16.0 / 9.0;
-pub const ORIGINAL_RESOLUTION: f32 = 4.0 / 3.0;
-pub const ORIGINAL_WIDTH: f32 = 256.0;
-pub const ORIGINAL_HEIGHT: f32 = 192.0;
-pub const SNAKE_SIZE: Vec2 = Vec2::new(16.0, 29.0);
-pub const MAP_SIZE: Vec2 = Vec2::new(512.0, 384.0);
 pub const COLLIDE_SIZE: f32 = 8.0;
 
 fn main() {
@@ -30,7 +23,7 @@ fn main() {
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(CLEAR))
         .insert_resource(WindowDescriptor {
-            width: HEIGHT * RESOLUTION,
+            width: WIDTH,
             height: HEIGHT,
             title: "Metal Gear".to_string(),
             resizable: false,
