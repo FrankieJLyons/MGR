@@ -25,7 +25,7 @@ pub struct TileCollider;
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(load_map)
-            .add_startup_system(create_collision_map);
+            .add_startup_system(create_collision_map_from_image);
     }
 }
 
@@ -49,56 +49,6 @@ fn load_map(
     });
 }
 
-fn create_collision_map(mut commands: Commands) {
-    let file = File::open("assets/rooms/collisions/000.txt").expect("No map file found");
-    let mut tiles = Vec::new();
-
-    let starting_x = -ORIGINAL_WIDTH / 2.0 + COLLIDE_SIZE / 2.0;
-    let starting_y = ORIGINAL_HEIGHT / 2.0 - COLLIDE_SIZE / 2.0;
-
-    for (y, line) in BufReader::new(file).lines().enumerate() {
-        if let Ok(line) = line {
-            for (x, char) in line.chars().enumerate() {
-                let tile_x = starting_x + x as f32 * COLLIDE_SIZE;
-                let tile_y = starting_y - y as f32 * COLLIDE_SIZE;
-                let z = 100.0;
-
-                let translation = Vec3::new(tile_x, tile_y, z);
-                let mut color = Color::rgba(1.0, 1.0, 1.0, 0.0);
-                let tile = spawn_tile(&mut commands, translation);
-
-                if char == 'x' {
-                    color = Color::rgba(1.0, 1.0, 1.0, 0.5);
-                    commands.entity(tile).insert(TileCollider);
-                }
-
-                tiles.push(tile);
-
-                // collision tile
-                commands.spawn_bundle(SpriteBundle {
-                    sprite: Sprite {
-                        color: color,
-                        ..default()
-                    },
-                    transform: Transform {
-                        translation: translation,
-                        scale: Vec3::splat(COLLIDE_SIZE),
-                        ..default()
-                    },
-                    ..default()
-                });
-            }
-        }
-    }
-
-    commands
-        .spawn()
-        .insert(Name::new("CollisionMap"))
-        .insert(Transform::default())
-        .insert(GlobalTransform::default())
-        .push_children(&tiles);
-}
-
 pub fn spawn_tile(commands: &mut Commands, translation: Vec3) -> Entity {
     commands
         .spawn_bundle(SpriteSheetBundle {
@@ -109,4 +59,49 @@ pub fn spawn_tile(commands: &mut Commands, translation: Vec3) -> Entity {
             ..Default::default()
         })
         .id()
+}
+
+fn create_collision_map_from_image(mut commands: Commands) {
+    let img = image::open("assets/rooms/collisions/000.png").unwrap();
+    let mut tiles = Vec::new();
+    let starting_x = -ORIGINAL_WIDTH / 2.0 + COLLIDE_SIZE / 2.0;
+    let starting_y = ORIGINAL_HEIGHT / 2.0 - COLLIDE_SIZE / 2.0;
+
+    for pixel in img.pixels() {
+        let tile_x = starting_x + pixel.0 as f32 * COLLIDE_SIZE;
+        let tile_y = starting_y - pixel.1 as f32 * COLLIDE_SIZE;
+        let z = 100.0;
+
+        let translation = Vec3::new(tile_x, tile_y, z);
+        let tile = spawn_tile(&mut commands, translation);
+        let mut color = Color::rgba(1.0, 1.0, 1.0, 0.0);
+
+        if Color::rgb_u8(pixel.2[0], pixel.2[1], pixel.2[2]) != Color::WHITE {
+            // println!("{:?}", pixel);
+            commands.entity(tile).insert(TileCollider);
+            color = Color::rgba(1.0, 1.0, 1.0, 0.25);
+        }
+        tiles.push(tile);
+
+        // collision tile
+        commands.spawn_bundle(SpriteBundle {
+            sprite: Sprite {
+                color: color,
+                ..default()
+            },
+            transform: Transform {
+                translation: translation,
+                scale: Vec3::splat(COLLIDE_SIZE),
+                ..default()
+            },
+            ..default()
+        });
+    }
+
+    commands
+        .spawn()
+        .insert(Name::new("CollisionMap"))
+        .insert(Transform::default())
+        .insert(GlobalTransform::default())
+        .push_children(&tiles);
 }

@@ -9,8 +9,8 @@ use player::PlayerPlugin;
 mod debug;
 use debug::DebugPlugin;
 
-mod image;
-use image::ImagePlugin;
+mod asset;
+use asset::ImagePlugin;
 
 mod map;
 use map::{MapPlugin, HEIGHT, RESOLUTION, WIDTH};
