@@ -3,20 +3,28 @@ use bevy::{prelude::*, render::camera::ScalingMode, render::texture::ImageSettin
 
 use std::io::{stdout, Write};
 
+mod asset;
+mod debug;
+mod map;
 mod player;
+
+use asset::AssetPlugin;
+use debug::DebugPlugin;
+use map::{MapPlugin, HEIGHT, RESOLUTION, WIDTH};
 use player::PlayerPlugin;
 
-mod debug;
-use debug::DebugPlugin;
-
-mod asset;
-use asset::ImagePlugin;
-
-mod map;
-use map::{MapPlugin, HEIGHT, RESOLUTION, WIDTH};
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
+pub enum GameState {
+    Play,
+    Pause,
+    Codec,
+    Select,
+    Script,
+}
 
 fn main() {
     App::new()
+        .add_state(GameState::Play)
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .insert_resource(WindowDescriptor {
@@ -30,7 +38,7 @@ fn main() {
         .add_system(bevy::window::close_on_esc)
         .add_plugins(DefaultPlugins)
         .add_plugin(DebugPlugin)
-        .add_plugin(ImagePlugin)
+        .add_plugin(AssetPlugin)
         .add_plugin(MapPlugin)
         .add_plugin(PlayerPlugin)
         .run();

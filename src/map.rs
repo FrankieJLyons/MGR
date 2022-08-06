@@ -11,12 +11,15 @@ pub const ORIGINAL_WIDTH: f32 = 256.0;
 pub const MAP_WIDTH: f32 = 512.0;
 pub const MAP_HEIGHT: f32 = 384.0;
 pub const MAP_SIZE: Vec2 = Vec2::new(MAP_WIDTH, MAP_HEIGHT);
-pub const COLLIDE_SIZE: f32 = 8.0;
+pub const COLLIDER_SIZE: f32 = 8.0;
 
 pub struct MapPlugin;
 
 #[derive(Component)]
-pub struct TileCollider;
+struct ColliderMap;
+
+#[derive(Component)]
+pub struct Collider;
 
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
@@ -34,70 +37,72 @@ fn load_map(
     let asset = TextureAtlas::from_grid(texture, MAP_SIZE, 1, 1);
     let atlas_handle = atlases.add(asset);
 
-    commands.spawn_bundle(SpriteSheetBundle {
-        texture_atlas: atlas_handle,
-        transform: Transform {
-            translation: Vec3::new(0.0, 0.0, 0.0),
-            scale: Vec3::splat(0.5),
-            ..Default::default()
-        },
-        ..Default::default()
-    });
-}
-
-pub fn spawn_tile(commands: &mut Commands, translation: Vec3) -> Entity {
     commands
         .spawn_bundle(SpriteSheetBundle {
+            texture_atlas: atlas_handle,
             transform: Transform {
-                translation: translation,
+                translation: Vec3::new(0.0, 0.0, 0.0),
+                scale: Vec3::splat(0.5),
                 ..Default::default()
             },
             ..Default::default()
         })
-        .id()
+        .insert(Name::new("CurrentRoom"));
 }
 
 fn create_collision_map_from_image(mut commands: Commands) {
     let img = image::open("assets/rooms/collisions/000.png").unwrap();
     let mut tiles = Vec::new();
-    let starting_x = -ORIGINAL_WIDTH / 2.0 + COLLIDE_SIZE / 2.0;
-    let starting_y = ORIGINAL_HEIGHT / 2.0 - COLLIDE_SIZE / 2.0;
+    let starting_x = -ORIGINAL_WIDTH / 2.0 + COLLIDER_SIZE / 2.0;
+    let starting_y = ORIGINAL_HEIGHT / 2.0 - COLLIDER_SIZE / 2.0;
 
     for pixel in img.pixels() {
-        let tile_x = starting_x + pixel.0 as f32 * COLLIDE_SIZE;
-        let tile_y = starting_y - pixel.1 as f32 * COLLIDE_SIZE;
+        let x = starting_x + pixel.0 as f32 * COLLIDER_SIZE;
+        let y = starting_y - pixel.1 as f32 * COLLIDER_SIZE;
         let z = 100.0;
+        let color = Color::rgb(pixel.2[0] as f32, pixel.2[0] as f32, pixel.2[0] as f32);
 
-        let translation = Vec3::new(tile_x, tile_y, z);
-        let tile = spawn_tile(&mut commands, translation);
-        let mut color = Color::rgba(1.0, 1.0, 1.0, 0.0);
+        let translation = Vec3::new(x, y, z);
+        let tile = spawn_tile(&mut commands, translation, color);
 
-        if Color::rgb_u8(pixel.2[0], pixel.2[1], pixel.2[2]) != Color::WHITE {
-            // println!("{:?}", pixel);
-            commands.entity(tile).insert(TileCollider);
-            color = Color::rgba(1.0, 1.0, 1.0, 0.25);
+        if color == Color::BLACK {
+            commands.entity(tile).insert(Collider);
         }
         tiles.push(tile);
 
-        // collision tile
-        commands.spawn_bundle(SpriteBundle {
-            sprite: Sprite {
-                color: color,
-                ..default()
-            },
-            transform: Transform {
-                translation: translation,
-                scale: Vec3::splat(COLLIDE_SIZE),
-                ..default()
-            },
-            ..default()
-        });
+        // println!("{:?}", pixel);
     }
 
     commands
         .spawn()
-        .insert(Name::new("CollisionMap"))
+        .insert(ColliderMap)
+        .insert(Name::new("ColliderMap"))
         .insert(Transform::default())
         .insert(GlobalTransform::default())
+        .insert(Visibility::default())
+        .insert(ComputedVisibility::default())
         .push_children(&tiles);
+}
+
+pub fn spawn_tile(commands: &mut Commands, translation: Vec3, color: Color) -> Entity {
+    let mut display_color = Color::rgba(1.0, 1.0, 1.0, 0.0);
+    if color == Color::BLACK {
+        display_color = Color::rgba(1.0, 1.0, 1.0, 0.25);
+    }
+
+    commands
+        .spawn_bundle(SpriteBundle {
+            sprite: Sprite {
+                color: display_color,
+                ..default()
+            },
+            transform: Transform {
+                translation: translation,
+                scale: Vec3::splat(COLLIDER_SIZE),
+                ..default()
+            },
+            visibility: Visibility { is_visible: true },
+            ..default()
+        })
+        .id()
 }

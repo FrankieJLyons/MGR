@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 
-pub struct ImagePlugin;
+pub struct AssetPlugin;
 
 // pub struct ImageSheet(pub Handle<TextureAtlas>);
 
-impl Plugin for ImagePlugin {
+impl Plugin for AssetPlugin {
     fn build(&self, app: &mut App) {}
 }
 

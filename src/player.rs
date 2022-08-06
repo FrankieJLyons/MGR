@@ -3,7 +3,8 @@ use bevy::sprite::collide_aabb::collide;
 use bevy_inspector_egui::Inspectable;
 
 use crate::asset::spawn_image_sprite;
-use crate::map::{TileCollider, COLLIDE_SIZE};
+use crate::map::{Collider, COLLIDER_SIZE};
+use crate::GameState;
 
 pub const SNAKE_SIZE: Vec2 = Vec2::new(16.0, 29.0);
 pub const SNAKE_OFFSET: f32 = SNAKE_SIZE.y / 4.0;
@@ -17,7 +18,8 @@ pub struct Player {
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_player)
+        app.add_system_set(SystemSet::on_update(GameState::Play))
+            .add_startup_system(spawn_player)
             // .add_system(animate_sprite)
             .add_system(camera_follow.after("movement"))
             .add_system(move_player.label("movement"));
@@ -50,7 +52,7 @@ fn spawn_player(
 
 fn move_player(
     mut player_query: Query<(&Player, &mut Transform)>,
-    wall_query: Query<&Transform, (With<TileCollider>, Without<Player>)>,
+    wall_query: Query<&Transform, (With<Collider>, Without<Player>)>,
     keyboard: Res<Input<KeyCode>>,
     time: Res<Time>,
 ) {
@@ -89,7 +91,7 @@ fn move_player(
 
 fn wall_collision_check(
     target_player_pos: Vec3,
-    wall_query: &Query<&Transform, (With<TileCollider>, Without<Player>)>,
+    wall_query: &Query<&Transform, (With<Collider>, Without<Player>)>,
 ) -> bool {
     for wall_transform in wall_query.iter() {
         let collision = collide(
@@ -100,7 +102,7 @@ fn wall_collision_check(
             ),
             SNAKE_COLLIDE_SIZE,
             wall_transform.translation,
-            Vec2::splat(COLLIDE_SIZE),
+            Vec2::splat(COLLIDER_SIZE),
         );
         if collision.is_some() {
             return false;
