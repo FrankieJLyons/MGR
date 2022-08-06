@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
 use bevy_inspector_egui::Inspectable;
 
-use crate::asset::spawn_asset_sprite;
+use crate::asset::spawn_image_sprite;
 use crate::map::{TileCollider, COLLIDE_SIZE};
 
 pub const SNAKE_SIZE: Vec2 = Vec2::new(16.0, 29.0);
@@ -29,7 +29,7 @@ fn spawn_player(
     asset_server: Res<AssetServer>,
     atlases: ResMut<Assets<TextureAtlas>>,
 ) {
-    let player = spawn_asset_sprite(
+    let player = spawn_image_sprite(
         &mut commands,
         asset_server,
         atlases,

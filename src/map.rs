@@ -1,8 +1,4 @@
 use image::GenericImageView;
-use std::{
-    fs::File,
-    io::{BufRead, BufReader},
-};
 
 use bevy::prelude::*;
 
