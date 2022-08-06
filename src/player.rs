@@ -4,8 +4,7 @@ use bevy_inspector_egui::Inspectable;
 
 // use crate::image::{self, spawn_image_sprite, ImageSheet};
 use crate::image::spawn_image_sprite;
-use crate::map::TileCollider;
-use crate::COLLIDE_SIZE;
+use crate::map::{TileCollider, COLLIDE_SIZE};
 
 pub const SNAKE_SIZE: Vec2 = Vec2::new(16.0, 29.0);
 pub const SNAKE_OFFSET: f32 = SNAKE_SIZE.y / 4.0;

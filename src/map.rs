@@ -5,10 +5,8 @@ use std::{
 
 use bevy::prelude::*;
 
-use crate::{print_data, COLLIDE_SIZE};
-
 pub const RESOLUTION: f32 = 16.0 / 9.0;
-pub const ORIGINAL_RESOLUTION: f32 = 4.0 / 3.0;
+// pub const ORIGINAL_RESOLUTION: f32 = 4.0 / 3.0;
 pub const WIDTH: f32 = 800.0;
 pub const HEIGHT: f32 = 450.0;
 pub const ORIGINAL_HEIGHT: f32 = 192.0;
@@ -16,6 +14,7 @@ pub const ORIGINAL_WIDTH: f32 = 256.0;
 pub const MAP_WIDTH: f32 = 512.0;
 pub const MAP_HEIGHT: f32 = 384.0;
 pub const MAP_SIZE: Vec2 = Vec2::new(MAP_WIDTH, MAP_HEIGHT);
+pub const COLLIDE_SIZE: f32 = 8.0;
 
 pub struct MapPlugin;
 

@@ -15,13 +15,10 @@ use image::ImagePlugin;
 mod map;
 use map::{MapPlugin, HEIGHT, RESOLUTION, WIDTH};
 
-pub const CLEAR: Color = Color::rgb(0.0, 0.0, 0.0);
-pub const COLLIDE_SIZE: f32 = 8.0;
-
 fn main() {
     App::new()
         .insert_resource(ImageSettings::default_nearest())
-        .insert_resource(ClearColor(CLEAR))
+        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
         .insert_resource(WindowDescriptor {
             width: WIDTH,
             height: HEIGHT,
@@ -30,6 +27,7 @@ fn main() {
             ..Default::default()
         }) // prevents blurry sprites
         .add_startup_system(spawn_camera)
+        .add_system(bevy::window::close_on_esc)
         .add_plugins(DefaultPlugins)
         .add_plugin(DebugPlugin)
         .add_plugin(ImagePlugin)
