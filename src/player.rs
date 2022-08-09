@@ -3,7 +3,7 @@ use bevy::sprite::collide_aabb::collide;
 use bevy_inspector_egui::Inspectable;
 
 use crate::asset::spawn_image_sprite;
-use crate::map::{Collider, Map, COLLIDER_SIZE, MAP_COLLIDER_SIZE};
+use crate::map::{Collider, Map, MapHolder, COLLIDER_SIZE, MAP_COLLIDER_SIZE};
 use crate::{print_data, GameState};
 
 pub const SNAKE_SIZE: Vec2 = Vec2::new(16.0, 29.0);
@@ -113,16 +113,22 @@ fn wall_collision_check(
 fn player_map_checking(
     mut player_query: Query<(&mut Player, &Transform)>,
     map_query: Query<(&mut Map, &Transform)>,
+    mut map_holder_query: Query<&mut MapHolder>,
+    time: Res<Time>,
 ) {
-    let (_player, player_transform) = player_query.single_mut();
-    let player_translation = player_transform.translation;
+    let mut map_holder = map_holder_query.single_mut();
+    map_holder.timer.tick(time.delta());
+    if map_holder.timer.finished() {
+        let (_player, player_transform) = player_query.single_mut();
+        let player_translation = player_transform.translation;
 
-    for map_i in map_query.iter() {
-        let (map, map_transform) = map_i;
-        let map_translation = map_transform.translation;
+        for map_i in map_query.iter() {
+            let (map, map_transform) = map_i;
+            let map_translation = map_transform.translation;
 
-        if map_collision_check(player_translation, map_translation) {
-            print_data(map.name.to_string());
+            if map_collision_check(player_translation, map_translation) {
+                print_data(map.name.to_string());
+            }
         }
     }
 }

@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use image::GenericImageView;
 
 use bevy::prelude::*;
@@ -17,8 +19,10 @@ pub const MAP_COLLIDER_SIZE: Vec2 = Vec2::new(ORIGINAL_WIDTH, ORIGINAL_HEIGHT);
 
 pub struct MapPlugin;
 
-#[derive(Component, Inspectable)]
-pub struct MapHolder;
+#[derive(Component)]
+pub struct MapHolder {
+    pub timer: Timer,
+}
 
 #[derive(Component, Inspectable)]
 pub struct Map {
@@ -62,7 +66,9 @@ fn create_map(
 
     commands
         .spawn()
-        .insert(MapHolder)
+        .insert(MapHolder {
+            timer: Timer::new(Duration::from_secs(3), true),
+        })
         .insert(Name::new("MapHolder"))
         .insert(Transform::default())
         .insert(GlobalTransform::default())
