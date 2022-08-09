@@ -127,7 +127,8 @@ fn player_map_checking(
             let map_translation = map_transform.translation;
 
             if map_collision_check(player_translation, map_translation) {
-                print_data(map.name.to_string());
+                map_holder.current = map.name.to_string();
+                print_data(map_holder.current.to_string());
             }
         }
     }

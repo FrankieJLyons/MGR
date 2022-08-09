@@ -22,6 +22,7 @@ pub struct MapPlugin;
 #[derive(Component)]
 pub struct MapHolder {
     pub timer: Timer,
+    pub current: String,
 }
 
 #[derive(Component, Inspectable)]
@@ -68,6 +69,7 @@ fn create_map(
         .spawn()
         .insert(MapHolder {
             timer: Timer::new(Duration::from_secs(3), true),
+            current: "".to_string(),
         })
         .insert(Name::new("MapHolder"))
         .insert(Transform::default())
