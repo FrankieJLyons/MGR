@@ -1,9 +1,9 @@
 use image::GenericImageView;
 use serde::{Deserialize, Serialize};
-use std::{fs, ptr::null, time::Duration};
+use std::{fs, path::PathBuf, ptr::null, time::Duration};
 
 use bevy::{prelude::*, reflect::Array};
-use bevy_inspector_egui::Inspectable;
+use bevy_inspector_egui::{egui::epaint::tessellator::Path, Inspectable};
 
 pub const RESOLUTION: f32 = 16.0 / 9.0;
 // pub const ORIGINAL_RESOLUTION: f32 = 4.0 / 3.0;
@@ -23,6 +23,7 @@ pub struct MapPlugin;
 pub struct MapHolder {
     pub timer: Timer,
     pub current: String,
+    pub siblings: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Component, Inspectable)]
@@ -41,15 +42,85 @@ pub struct Collider;
 
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(create_map)
-            .add_startup_system(create_collision_map);
+        app.add_startup_system(create_opening_map);
     }
+}
+
+fn create_opening_map(
+    mut commands: Commands,
+    mut asset_server: Res<AssetServer>,
+    mut atlases: ResMut<Assets<TextureAtlas>>,
+) {
+    let mut maps = Vec::new();
+    let name = "121";
+    let translation = Vec3::new(ORIGINAL_HEIGHT * 0.0, ORIGINAL_HEIGHT * -1.0, 0.0);
+    let path = format!("rooms/side/{}.png", name);
+    let map_file = spawn_map(
+        &mut commands,
+        &mut asset_server,
+        &mut atlases,
+        name.to_string(),
+        translation,
+        &path,
+    );
+    maps.push(map_file);
+    create_opening_collision_map(&mut commands, name, translation);
+
+    let mut siblings = Vec::new();
+    siblings.push("000".to_string());
+
+    commands
+        .spawn()
+        .insert(MapHolder {
+            timer: Timer::new(Duration::from_secs(3), true),
+            current: name.to_string(),
+            siblings: siblings,
+        })
+        .insert(Name::new("MapHolder"))
+        .insert(Transform::default())
+        .insert(GlobalTransform::default())
+        .insert(Visibility::default())
+        .insert(ComputedVisibility::default())
+        .push_children(&maps);
+}
+
+fn create_opening_collision_map(commands: &mut Commands, name: &str, origin: Vec3) {
+    let img = image::open(format!("assets/rooms/collisions/{}.png", name)).unwrap();
+    let mut tiles = Vec::new();
+    let starting_x = origin.x - (ORIGINAL_WIDTH / 2.0 - COLLIDER_SIZE / 2.0);
+    let starting_y = origin.y + (ORIGINAL_HEIGHT / 2.0 - COLLIDER_SIZE / 2.0);
+
+    for pixel in img.pixels() {
+        let x = starting_x + pixel.0 as f32 * COLLIDER_SIZE;
+        let y = starting_y - pixel.1 as f32 * COLLIDER_SIZE;
+        let z = 100.0;
+        let color = Color::rgb(pixel.2[0] as f32, pixel.2[0] as f32, pixel.2[0] as f32);
+
+        let translation = Vec3::new(x, y, z);
+        let tile = spawn_tile(commands, translation, color);
+
+        if color == Color::BLACK {
+            commands.entity(tile).insert(Collider);
+        }
+        tiles.push(tile);
+    }
+
+    commands
+        .spawn()
+        .insert(ColliderHolder)
+        .insert(Name::new("ColliderHolder"))
+        .insert(Transform::default())
+        .insert(GlobalTransform::default())
+        .insert(Visibility::default())
+        .insert(ComputedVisibility::default())
+        .push_children(&tiles);
 }
 
 fn create_map(
     mut commands: Commands,
     mut asset_server: Res<AssetServer>,
     mut atlases: ResMut<Assets<TextureAtlas>>,
+    mut map_holder_query: Query<&mut MapHolder>,
 ) {
     // Call initially with starting map
     // Pass in map name
@@ -83,11 +154,15 @@ fn create_map(
         maps.push(map_file);
     }
 
+    let mut siblings = Vec::new();
+    siblings.push("000".to_string());
+
     commands
         .spawn()
         .insert(MapHolder {
             timer: Timer::new(Duration::from_secs(3), true),
             current: "".to_string(),
+            siblings: siblings,
         })
         .insert(Name::new("MapHolder"))
         .insert(Transform::default())
