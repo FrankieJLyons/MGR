@@ -60,7 +60,7 @@ fn spawn_camera(mut commands: Commands) {
         min_height: (212.0),
     };
 
-    commands.spawn_bundle(camera);
+    commands.spawn_bundle(camera).insert(Name::new("Camera"));
 }
 
 pub fn print_data(string: String) {

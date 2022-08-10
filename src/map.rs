@@ -1,6 +1,6 @@
 use image::GenericImageView;
 use serde::{Deserialize, Serialize};
-use std::{ptr::null, time::Duration};
+use std::{fs, ptr::null, time::Duration};
 
 use bevy::{prelude::*, reflect::Array};
 use bevy_inspector_egui::Inspectable;
@@ -29,7 +29,8 @@ pub struct MapHolder {
 pub struct Map {
     pub name: String,
     pub siblings: Vec<String>,
-    pub position: Vec3,
+    pub x: f32,
+    pub y: f32,
 }
 
 #[derive(Component)]
@@ -62,10 +63,15 @@ fn create_map(
 
     let mut maps = Vec::new();
 
-    for i in 0..2 {
-        let name = format!("00{}", i);
-        let translation = Vec3::new(0.0, ORIGINAL_HEIGHT * i as f32, 0.0);
-        let path = format!("rooms/main/00{}.png", i);
+    let data = fs::read_to_string("assets/rooms/rooms.json").expect("Unable to read JSON file");
+    let json: Vec<Map> = serde_json::from_str(&data).expect("JSON was not well-formatted");
+
+    for room in &json {
+        println!("{:?}\n", room);
+
+        let name = format!("{}", room.name);
+        let translation = Vec3::new(ORIGINAL_HEIGHT * room.x, ORIGINAL_HEIGHT * room.y, 0.0);
+        let path = format!("rooms/main/{}.png", room.name);
         let map_file = spawn_map(
             &mut commands,
             &mut asset_server,
@@ -106,6 +112,8 @@ fn spawn_map(
     let mut siblings = Vec::new();
     siblings.push("".to_string());
 
+    let position = Vec2::new(0.0, 0.0);
+
     commands
         .spawn_bundle(SpriteSheetBundle {
             texture_atlas: atlas_handle,
@@ -119,7 +127,8 @@ fn spawn_map(
         .insert(Map {
             name: name,
             siblings: siblings,
-            position: translation,
+            x: 0.0,
+            y: 0.0,
         })
         .id()
 }
