@@ -1,9 +1,9 @@
 use image::GenericImageView;
 use serde::{Deserialize, Serialize};
-use std::{fs, path::PathBuf, ptr::null, time::Duration};
+use std::{fs, time::Duration};
 
-use bevy::{prelude::*, reflect::Array};
-use bevy_inspector_egui::{egui::epaint::tessellator::Path, Inspectable};
+use bevy::prelude::*;
+use bevy_inspector_egui::Inspectable;
 
 pub const RESOLUTION: f32 = 16.0 / 9.0;
 // pub const ORIGINAL_RESOLUTION: f32 = 4.0 / 3.0;
@@ -116,11 +116,11 @@ fn create_opening_collision_map(commands: &mut Commands, name: &str, origin: Vec
         .push_children(&tiles);
 }
 
-fn create_map(
-    mut commands: Commands,
-    mut asset_server: Res<AssetServer>,
-    mut atlases: ResMut<Assets<TextureAtlas>>,
-    mut map_holder_query: Query<&mut MapHolder>,
+pub fn create_map(
+    commands: &mut Commands,
+    asset_server: &mut Res<AssetServer>,
+    atlases: &mut ResMut<Assets<TextureAtlas>>,
+    map_holder: &mut MapHolder,
 ) {
     // Call initially with starting map
     // Pass in map name
@@ -132,44 +132,81 @@ fn create_map(
     // Pass in the new name
     // Do a look up of a dataset and load new maps while despawning old maps
 
+    let data =
+        fs::read_to_string("assets/rooms/rooms.json").expect("Unable to read room JSON file");
+    let rooms: Vec<Map> = serde_json::from_str(&data).expect("JSON was not well-formatted");
+
     let mut maps = Vec::new();
 
-    let data = fs::read_to_string("assets/rooms/rooms.json").expect("Unable to read JSON file");
-    let json: Vec<Map> = serde_json::from_str(&data).expect("JSON was not well-formatted");
+    let current = map_holder.current.clone();
+    let mut siblings = Vec::new();
 
-    for room in &json {
-        println!("{:?}\n", room);
+    // find current room
+    // load its tile map
+    // get it's siblings
+    // load there maps
+    // count siblings and break when all are found
 
-        let name = format!("{}", room.name);
-        let translation = Vec3::new(ORIGINAL_HEIGHT * room.x, ORIGINAL_HEIGHT * room.y, 0.0);
-        let path = format!("rooms/main/{}.png", room.name);
-        let map_file = spawn_map(
-            &mut commands,
-            &mut asset_server,
-            &mut atlases,
-            name,
-            translation,
-            &path,
-        );
-        maps.push(map_file);
+    let index = &rooms.iter().position(|map| map.name == current).unwrap();
+
+    println!("{:?}\n", current);
+    println!("{:?}\n", index);
+
+    // Get maps to load
+    for room in &rooms {
+        if room.name == current {
+            siblings.push(current.clone());
+            for s in &room.siblings {
+                siblings.push(s.to_string())
+            }
+            println!("{:?}\n", siblings);
+            break;
+        }
     }
 
-    let mut siblings = Vec::new();
-    siblings.push("000".to_string());
+    let mut s_count: usize = 0;
+    for room in &rooms {
+        if s_count == siblings.len() {
+            break;
+        }
 
-    commands
-        .spawn()
-        .insert(MapHolder {
-            timer: Timer::new(Duration::from_secs(3), true),
-            current: "".to_string(),
-            siblings: siblings,
-        })
-        .insert(Name::new("MapHolder"))
-        .insert(Transform::default())
-        .insert(GlobalTransform::default())
-        .insert(Visibility::default())
-        .insert(ComputedVisibility::default())
-        .push_children(&maps);
+        let name = &format!("{}", room.name);
+
+        for s in &siblings {
+            if name.to_string() == s.to_string() {
+                s_count += 1;
+                let translation =
+                    Vec3::new(ORIGINAL_HEIGHT * room.x, ORIGINAL_HEIGHT * room.y, 0.0);
+                let path = format!("rooms/main/{}.png", room.name);
+                let map_file = spawn_map(
+                    commands,
+                    asset_server,
+                    atlases,
+                    name.to_string(),
+                    translation,
+                    &path,
+                );
+                maps.push(map_file);
+                break;
+            }
+        }
+    }
+
+    // commands.entity(map_holder).push_children(&maps);
+
+    // commands
+    //     .spawn()
+    //     .insert(MapHolder {
+    //         timer: Timer::new(Duration::from_secs(3), true),
+    //         current: current,
+    //         siblings: siblings,
+    //     })
+    //     .insert(Name::new("MapHolder"))
+    //     .insert(Transform::default())
+    //     .insert(GlobalTransform::default())
+    //     .insert(Visibility::default())
+    //     .insert(ComputedVisibility::default())
+    //     .push_children(&maps);
 }
 
 fn spawn_map(
@@ -186,8 +223,6 @@ fn spawn_map(
 
     let mut siblings = Vec::new();
     siblings.push("".to_string());
-
-    let position = Vec2::new(0.0, 0.0);
 
     commands
         .spawn_bundle(SpriteSheetBundle {
