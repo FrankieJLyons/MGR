@@ -13,6 +13,7 @@ pub struct Player {
     last_frame_update: std::time::Instant,
 }
 
+// Enums
 enum State {
     Standing,
     Walking,
@@ -25,36 +26,49 @@ enum Direction {
     Right,
 }
 
-const SCALE: f32 = 3.0;
-
+// Frame Size
 const FS_STANDING: Vec2 = Vec2::new(17.0, 30.0);
 const FS_WALKING: Vec2 = Vec2::new(17.0, 30.0);
 
+// Max Frames
 const MF_WALKING: u32 = 2;
+
+// Conts
+const SCALE: f32 = 3.0;
+const SPEED: f32 = 2.56;
+const SHUTTER: u64 = 224;
 
 impl Player {
     // Public
     pub async fn new() -> Self {
+        // Load Textures
         let standing_texture = load_texture("assets/snake/standing.png").await.unwrap();
         standing_texture.set_filter(FilterMode::Nearest);
 
         let walking_texture = load_texture("assets/snake/walking.png").await.unwrap();
         walking_texture.set_filter(FilterMode::Nearest);
 
+        // Set self
         Self {
             texture: standing_texture,
             textures: [standing_texture, walking_texture],
             state: State::Standing,
             direction: Direction::Down,
             position: Vec2::new(screen_width() / 2.0, screen_height() / 2.0),
-            speed: 2.56,
+            speed: SPEED,
             frame_counter: 0,
-            frame_delay: Duration::from_millis(224),
+            frame_delay: Duration::from_millis(SHUTTER),
             last_frame_update: std::time::Instant::now()
         }
     }
 
     pub fn update(&mut self) {
+        // Pattern:
+        //// State,
+        //// Texture,
+        //// Input,
+        //// Other,
+        
         match self.state {
             State::Standing => {
                 if self.texture != self.textures[0] {
