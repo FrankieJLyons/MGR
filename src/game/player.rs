@@ -11,6 +11,7 @@ pub struct Player {
     frame_counter: u32,
     frame_delay: Duration,
     last_frame_update: std::time::Instant,
+    collider: Rect
 }
 
 // Enums
@@ -58,7 +59,8 @@ impl Player {
             speed: SPEED,
             frame_counter: 0,
             frame_delay: Duration::from_millis(SHUTTER),
-            last_frame_update: std::time::Instant::now()
+            last_frame_update: std::time::Instant::now(),
+            collider: Rect::new(0.0, 0.0, FS_STANDING.x, FS_STANDING.y)
         }
     }
 
@@ -117,7 +119,7 @@ impl Player {
         }
     }
     
-    pub fn draw(&self) {
+    pub fn draw(&mut self) {
         // Set Src
         let src_rect = match self.state {
             State::Standing => {
@@ -145,6 +147,14 @@ impl Player {
             self.position.y,
             src_rect.w * SCALE,
             src_rect.h * SCALE,
+        );
+
+        // Set collider based on destination
+        self.collider = Rect::new(
+            dest_rect.x,
+            dest_rect.y,
+            dest_rect.w,
+            dest_rect.h / 2.0,
         );
 
         // Draw
