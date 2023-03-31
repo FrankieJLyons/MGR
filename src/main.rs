@@ -20,6 +20,8 @@ async fn main() {
     let mut game = Game::new().await.unwrap();
     
     loop {
+        if is_key_down(KeyCode::Escape) { std::process::exit(0) };
+
         game.update();
 
         clear_background(PINK);
