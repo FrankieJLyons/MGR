@@ -118,7 +118,8 @@ impl Player {
     }
     
     pub fn draw(&self) {
-        let (src_rect) = match self.state {
+        // Set Src
+        let src_rect = match self.state {
             State::Standing => {
                 match self.direction {
                     Direction::Down => Rect::new(0.0, 0.0, FS_STANDING.x, FS_STANDING.y),
@@ -138,6 +139,7 @@ impl Player {
             },
         };
 
+        // Set dest
         let dest_rect = Rect::new(
             self.position.x,
             self.position.y,
@@ -145,6 +147,7 @@ impl Player {
             src_rect.h * SCALE,
         );
 
+        // Draw
         draw_texture_ex(
             self.texture,
             dest_rect.x,
@@ -160,20 +163,24 @@ impl Player {
 
     // Private
     fn update_frame_counter(&mut self) -> u32 {
+        // Update time vars
         let now = std::time::Instant::now();
         let elapsed = now - self.last_frame_update;
 
+        // Get frame limits
         let max_frames = match self.state {
             State::Standing => 0,
             State::Walking => 2
         };
 
+        // Check frame vs time
         if elapsed >= self.frame_delay {
+            self.last_frame_update = now;
             let frames = elapsed.as_secs_f32() / self.frame_delay.as_secs_f32();
             self.frame_counter = (self.frame_counter + frames as u32) % max_frames;
-            self.last_frame_update = now;
         }
 
+        // Return current frame
         self.frame_counter
     }
 }
