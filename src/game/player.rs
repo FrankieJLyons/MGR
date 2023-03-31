@@ -118,32 +118,31 @@ impl Player {
     }
     
     pub fn draw(&self) {
-        let (src_x, src_y, src_w, src_h) = match self.state {
+        let (src_rect) = match self.state {
             State::Standing => {
                 match self.direction {
-                    Direction::Down => (0.0, 0.0, FS_STANDING.x, FS_STANDING.y),
-                    Direction::Left => (0.0, FS_STANDING.y, FS_STANDING.x, FS_STANDING.y),
-                    Direction::Up => (0.0, FS_STANDING.y * 2.0, FS_STANDING.x, FS_STANDING.y),
-                    Direction::Right => (0.0, FS_STANDING.y * 3.0, FS_STANDING.x, FS_STANDING.y),
+                    Direction::Down => Rect::new(0.0, 0.0, FS_STANDING.x, FS_STANDING.y),
+                    Direction::Left => Rect::new(0.0, FS_STANDING.y, FS_STANDING.x, FS_STANDING.y),
+                    Direction::Up => Rect::new(0.0, FS_STANDING.y * 2.0, FS_STANDING.x, FS_STANDING.y),
+                    Direction::Right => Rect::new(0.0, FS_STANDING.y * 3.0, FS_STANDING.x, FS_STANDING.y),
                 }
             },
             State::Walking => {
                 let frame = ((self.frame_counter % MF_WALKING)) as f32;
                 match self.direction {
-                    Direction::Down => (FS_WALKING.x * frame, 0.0, FS_WALKING.x, FS_WALKING.y),
-                    Direction::Left => (FS_WALKING.x * frame, FS_WALKING.y, FS_WALKING.x, FS_WALKING.y),
-                    Direction::Up => (FS_WALKING.x * frame, FS_WALKING.y * 2.0, FS_WALKING.x, FS_WALKING.y),
-                    Direction::Right => (FS_WALKING.x * frame, FS_WALKING.y * 3.0, FS_WALKING.x, FS_WALKING.y),
+                    Direction::Down => Rect::new(FS_WALKING.x * frame, 0.0, FS_WALKING.x, FS_WALKING.y),
+                    Direction::Left => Rect::new(FS_WALKING.x * frame, FS_WALKING.y, FS_WALKING.x, FS_WALKING.y),
+                    Direction::Up => Rect::new(FS_WALKING.x * frame, FS_WALKING.y * 2.0, FS_WALKING.x, FS_WALKING.y),
+                    Direction::Right => Rect::new(FS_WALKING.x * frame, FS_WALKING.y * 3.0, FS_WALKING.x, FS_WALKING.y),
                 }
             },
         };
 
-        let src_rect = Rect::new(src_x, src_y, src_w, src_h);
         let dest_rect = Rect::new(
             self.position.x,
             self.position.y,
-            src_w * SCALE,
-            src_h * SCALE,
+            src_rect.w * SCALE,
+            src_rect.h * SCALE,
         );
 
         draw_texture_ex(
