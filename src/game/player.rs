@@ -56,7 +56,7 @@ impl Player {
             textures: [standing_texture, walking_texture],
             state: State::Standing,
             direction: Direction::Up,
-            position: START_POS,
+            position: Vec2::new(screen_width() / 2.0, screen_height() / 2.0), //START_POS,
             speed: SPEED,
             frame_counter: 0,
             frame_delay: Duration::from_millis(SHUTTER),

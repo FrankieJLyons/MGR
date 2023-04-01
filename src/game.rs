@@ -22,16 +22,21 @@ impl Game {
     pub fn update(&mut self) {
         self.player.update();
 
-        let camera_position = self.player.position();
-        set_camera(&Camera2D {
-            zoom: vec2(1.0 / screen_width() / 2.0, -1.0 / screen_height() / 2.0),
-            target: camera_position,
-            ..Default::default()
-        });
+        self.camera_update();
     }
 
     pub fn draw(&mut self) {
         self.map.draw();
         self.player.draw();
+    }
+
+    fn camera_update(&self) {
+        let camera_position = self.player.position();
+        set_camera(&Camera2D {
+            zoom: vec2(1.0 / screen_width() / 2.0, -1.0 / screen_height() / 2.0), // half zoom
+            //zoom: vec2(1.0 / screen_width() * 2.0, -1.0 / screen_height() * 2.0), // full view
+            target: camera_position,
+            ..Default::default()
+        });
     }
 }
