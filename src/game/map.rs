@@ -5,6 +5,7 @@ use std::io::{BufRead, BufReader};
 
 pub struct Map {
     tiles: Vec<Texture2D>,
+    tile_string: Vec<String>,
 }
 
 const SCALE: f32 = 2.0;
@@ -16,6 +17,8 @@ impl Map {
     pub async fn new(map_file: &str) -> Self {
         // Load all the tile textures and collision maps here
         let mut tiles = Vec::new();
+        let mut tile_string = Vec::new();
+
         let mut map_grid = Vec::new();
 
         // Open the map file and read its contents line by line
@@ -29,6 +32,7 @@ impl Map {
                     // Insert a default texture instead of None
                     let default_texture = load_texture("assets/rooms/xxx.png").await.unwrap();
                     row.push(Some(default_texture));
+                    tile_string.push("".to_string());
                 } else {
                     let tile_filename = if tile_id.parse::<i32>().unwrap() <= 120 {
                         format!("assets/rooms/main/{:03}.png", tile_id)
@@ -38,6 +42,9 @@ impl Map {
                     let tile_texture = load_texture(&tile_filename).await.unwrap();
                     tile_texture.set_filter(FilterMode::Nearest);
                     row.push(Some(tile_texture));
+
+                    let tile_str = tile_id.to_string();
+                    tile_string.push(tile_str);
                 }
             }
             map_grid.push(row);
@@ -54,6 +61,7 @@ impl Map {
 
         Map {
             tiles,
+            tile_string
         }
     }
 
@@ -75,12 +83,13 @@ impl Map {
                 },
             );
 
+            // Debug info
             draw_text(
-                &i.to_string(),
-                dest_rect.x + 5.0,
-                dest_rect.y + 5.0,
-                16.0,
-                BLACK,
+                &self.tile_string[i].to_string(),
+                dest_rect.x + 16.0,
+                dest_rect.y + 32.0,
+                64.0,
+                WHITE,
             );
         }
     }

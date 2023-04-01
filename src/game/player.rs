@@ -35,6 +35,7 @@ const FS_WALKING: Vec2 = Vec2::new(17.0, 30.0);
 const MF_WALKING: u32 = 2;
 
 // Conts
+const START_POS: Vec2 = Vec2::new(512.0 - FS_STANDING.x / 2.0, 384.0 * 8.5);
 const SCALE: f32 = 3.0;
 const SPEED: f32 = 2.56;
 const SHUTTER: u64 = 224;
@@ -54,8 +55,8 @@ impl Player {
             texture: standing_texture,
             textures: [standing_texture, walking_texture],
             state: State::Standing,
-            direction: Direction::Down,
-            position: Vec2::new(screen_width() / 2.0, screen_height() / 2.0),
+            direction: Direction::Up,
+            position: START_POS,
             speed: SPEED,
             frame_counter: 0,
             frame_delay: Duration::from_millis(SHUTTER),
