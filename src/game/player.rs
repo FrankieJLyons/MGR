@@ -171,6 +171,12 @@ impl Player {
         );
     }
 
+    // Getters
+
+    pub fn position(&self) -> Vec2 {
+        self.position
+    }
+
     // Private
     fn update_frame_counter(&mut self) -> u32 {
         // Update time vars

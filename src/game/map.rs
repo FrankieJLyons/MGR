@@ -1,5 +1,8 @@
 use macroquad::prelude::*;
 
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+
 pub struct Map {
     tiles: Vec<Texture2D>,
 }
@@ -10,25 +13,43 @@ const MAP_WIDTH: f32 = 512.0 * SCALE;
 const MAP_HEIGHT: f32 = 384.0 * SCALE;
 
 impl Map {
-    pub async fn new() -> Self {
+    pub async fn new(map_file: &str) -> Self {
         // Load all the tile textures and collision maps here
         let mut tiles = Vec::new();
+        let mut map_grid = Vec::new();
 
-        for i in 0..120 {
-            // Check if the tile texture file exists before loading it
-            let tile_filename = format!("assets/rooms/main/{:03}.png", i);
-            let tile_texture = if let Ok(metadata) = std::fs::metadata(&tile_filename) {
-                if metadata.is_file() {
-                    load_texture(&tile_filename).await.unwrap()
+        // Open the map file and read its contents line by line
+        let file = File::open(map_file).unwrap();
+        let reader = BufReader::new(file);
+        for line in reader.lines() {
+            let mut row = Vec::new();
+            let line = line.unwrap();
+            for tile_id in line.split(",").map(|s| s.trim()) {
+                if tile_id == "xxx" {
+                    // Insert a default texture instead of None
+                    let default_texture = load_texture("assets/rooms/xxx.png").await.unwrap();
+                    row.push(Some(default_texture));
                 } else {
-                    Texture2D::empty()
+                    let tile_filename = if tile_id.parse::<i32>().unwrap() <= 120 {
+                        format!("assets/rooms/main/{:03}.png", tile_id)
+                    } else {
+                        format!("assets/rooms/side/{:03}.png", tile_id)
+                    };
+                    let tile_texture = load_texture(&tile_filename).await.unwrap();
+                    tile_texture.set_filter(FilterMode::Nearest);
+                    row.push(Some(tile_texture));
                 }
-            } else {
-                Texture2D::empty()
-            };
-            tiles.push(tile_texture);
+            }
+            map_grid.push(row);
+        }
 
-                tile_texture.set_filter(FilterMode::Nearest);
+        // Flatten the map grid into a linear array of tiles
+        for row in map_grid {
+            for tile in row {
+                if let Some(tile_texture) = tile {
+                    tiles.push(tile_texture);
+                }
+            }
         }
 
         Map {
@@ -37,15 +58,14 @@ impl Map {
     }
 
     pub fn draw(&self) {
-        // Draw all the tiles in the map
+        // Draw all the tiles in the map grid
         for (i, tile) in self.tiles.iter().enumerate() {
-            let tile_texture = tile; // Get the texture associated with the tile
-            let x = i as f32 * MAP_WIDTH as f32;
-            let y = i as f32 * MAP_HEIGHT as f32;
-            let dest_rect = Rect::new(x * MAP_WIDTH, y * MAP_HEIGHT, MAP_WIDTH, MAP_HEIGHT);
+            let x = (i % 5) as f32 * MAP_WIDTH;
+            let y = (i / 5) as f32 * MAP_HEIGHT;
+            let dest_rect = Rect::new(x, y, MAP_WIDTH, MAP_HEIGHT);
 
             draw_texture_ex(
-                *tile_texture,
+                *tile,
                 dest_rect.x,
                 dest_rect.y,
                 WHITE,
@@ -53,6 +73,14 @@ impl Map {
                     dest_size: Some(dest_rect.size()),
                     ..Default::default()
                 },
+            );
+
+            draw_text(
+                &i.to_string(),
+                dest_rect.x + 5.0,
+                dest_rect.y + 5.0,
+                16.0,
+                BLACK,
             );
         }
     }

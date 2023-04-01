@@ -14,13 +14,20 @@ pub struct Game {
 impl Game {
     pub async fn new() -> Result<Self, FileError> {
         let player = Player::new().await;
-        let map = Map::new().await;
+        let map = Map::new("assets/rooms/arrays/b1_f1.txt").await;
         
         Ok(Self { player, map })
     }
 
     pub fn update(&mut self) {
         self.player.update();
+
+        let camera_position = self.player.position();
+        set_camera(&Camera2D {
+            zoom: vec2(1.0 / screen_width() / 2.0, -1.0 / screen_height() / 2.0),
+            target: camera_position,
+            ..Default::default()
+        });
     }
 
     pub fn draw(&mut self) {
