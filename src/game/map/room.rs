@@ -5,12 +5,13 @@ mod colliderMap;
 
 use colliderMap::ColliderMap;
 
+#[derive(Debug, Clone)]
 pub struct Room {
-    name: String,
+    pub name: String,
     texture: Texture2D,
-    position: Vec2,
-    bounds: Rect,
-    collider_map: ColliderMap
+    pub position: Vec2,
+    pub bounds: Rect,
+    pub collider_map: ColliderMap
 }
 
 const MAP_SCALE: f32 = 2.0;
@@ -68,7 +69,7 @@ impl Room {
         );
 
         // Debug info
-        self.collider_map.draw(self.bounds.x, self.bounds.y);
+        self.collider_map.draw(self.bounds);
 
         draw_text(
             &self.name,

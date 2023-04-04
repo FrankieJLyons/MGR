@@ -1,17 +1,19 @@
 use macroquad::prelude::*;
 use std::time::Duration;
 
+use crate::game::collider::Collider;
+
 pub struct Player {
     texture: Texture2D,
     textures: [Texture2D; 2],    
-    state: State,
-    direction: Direction,
-    position: Vec2,
-    speed: f32,
     frame_counter: u32,
     frame_delay: Duration,
     last_frame_update: std::time::Instant,
-    collider: Rect
+    state: State,
+    direction: Direction,
+    pub position: Vec2,
+    pub speed: f32,
+    pub collider: Collider,
 }
 
 // Enums
@@ -39,6 +41,7 @@ const START_POS: Vec2 = Vec2::new(512.0 - FS_STANDING.x / 2.0, 384.0 * 8.5);
 const SCALE: f32 = 3.0;
 const SPEED: f32 = 2.56;
 const SHUTTER: u64 = 224;
+const OFFSET_COL_POS: f32 = FS_STANDING.y * SCALE / 2.0;
 
 impl Player {
     // Public
@@ -61,7 +64,7 @@ impl Player {
             frame_counter: 0,
             frame_delay: Duration::from_millis(SHUTTER),
             last_frame_update: std::time::Instant::now(),
-            collider: Rect::new(0.0, 0.0, FS_STANDING.x, FS_STANDING.y)
+            collider: Collider::new(Rect::new(0.0, FS_STANDING.y / 2.0, FS_STANDING.x, FS_STANDING.y / 2.0))
         }
     }
 
@@ -151,11 +154,19 @@ impl Player {
         );
 
         // Set collider based on destination
-        self.collider = Rect::new(
+        self.collider.setBounds(
             dest_rect.x,
             dest_rect.y,
             dest_rect.w,
             dest_rect.h / 2.0,
+        );
+
+        draw_rectangle(
+            self.collider.rect.x,
+            self.collider.rect.y + OFFSET_COL_POS,
+            self.collider.rect.w,
+            self.collider.rect.h,
+            Color::new(0.0, 1.0, 0.0, 0.5),
         );
 
         // Draw
@@ -170,12 +181,6 @@ impl Player {
                 ..Default::default()
             },
         );
-    }
-
-    // Getters
-
-    pub fn position(&self) -> Vec2 {
-        self.position
     }
 
     // Private

@@ -1,5 +1,6 @@
 use macroquad::prelude::*;
 
+pub mod collider;
 pub mod player;
 pub mod map;
 
@@ -19,8 +20,10 @@ impl Game {
         Ok(Self { player, map })
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self) {      
         self.player.update();
+
+        self.room_collision();
 
         self.camera_update();
     }
@@ -31,12 +34,34 @@ impl Game {
     }
 
     fn camera_update(&self) {
-        let camera_position = self.player.position();
+        let camera_position = self.player.position;
         set_camera(&Camera2D {
-            zoom: vec2(1.0 / screen_width() / 2.0, -1.0 / screen_height() / 2.0), // half zoom
-            //zoom: vec2(1.0 / screen_width() * 2.0, -1.0 / screen_height() * 2.0), // full view
+            //zoom: vec2(1.0 / screen_width() / 2.0, -1.0 / screen_height() / 2.0), // half zoom
+            zoom: vec2(1.0 / screen_width() * 2.0, -1.0 / screen_height() * 2.0), // full view
             target: camera_position,
             ..Default::default()
         });
+    }
+
+    fn room_collision(&self) {
+        // find the room the player is currently in
+        let rooms = &self.map.rooms;
+        let current_room = rooms.iter().find(|room| room.bounds.contains(self.player.position));
+
+        // check for collisions with the player's collider
+        if let Some(room) = current_room {
+            let colliders = &room.collider_map.colliders;
+            let player_collider = &self.player.collider; // assuming you have a method to get the player's collider
+
+            for collider in colliders {
+                if collider.intersects(&player_collider) {
+                    // handle collision
+                    eprintln!("Collision: {}", room.name);
+                }
+            }
+        }
+
+        eprintln!("Pos: {}", self.player.position);
+
     }
 }

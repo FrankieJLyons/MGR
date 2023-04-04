@@ -7,7 +7,7 @@ pub mod room;
 use self::room::Room;
 
 pub struct Map {
-    rooms: Vec<Room>,
+    pub rooms: Vec<Room>,
 }
 
 impl Map {
