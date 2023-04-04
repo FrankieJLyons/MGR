@@ -1,8 +1,6 @@
 use macroquad::prelude::*;
 use std::time::Duration;
 
-use crate::game::collider::Collider;
-
 pub struct Player {
     texture: Texture2D,
     textures: [Texture2D; 2],    
@@ -13,7 +11,7 @@ pub struct Player {
     direction: Direction,
     pub position: Vec2,
     pub speed: f32,
-    pub collider: Collider,
+    pub collider: Rect,
 }
 
 // Enums
@@ -64,7 +62,7 @@ impl Player {
             frame_counter: 0,
             frame_delay: Duration::from_millis(SHUTTER),
             last_frame_update: std::time::Instant::now(),
-            collider: Collider::new(Rect::new(0.0, FS_STANDING.y / 2.0, FS_STANDING.x, FS_STANDING.y / 2.0))
+            collider: Rect::new(0.0, FS_STANDING.y / 2.0, FS_STANDING.x, FS_STANDING.y / 2.0)
         }
     }
 
@@ -154,18 +152,18 @@ impl Player {
         );
 
         // Set collider based on destination
-        self.collider.setBounds(
+        self.collider = Rect::new(
             dest_rect.x,
             dest_rect.y,
             dest_rect.w,
-            dest_rect.h / 2.0,
+            dest_rect.h / 2.0
         );
 
         draw_rectangle(
-            self.collider.rect.x,
-            self.collider.rect.y + OFFSET_COL_POS,
-            self.collider.rect.w,
-            self.collider.rect.h,
+            self.collider.x,
+            self.collider.y + OFFSET_COL_POS,
+            self.collider.w,
+            self.collider.h,
             Color::new(0.0, 1.0, 0.0, 0.5),
         );
 

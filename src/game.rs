@@ -1,6 +1,5 @@
 use macroquad::prelude::*;
 
-pub mod collider;
 pub mod player;
 pub mod map;
 
@@ -54,14 +53,11 @@ impl Game {
             let player_collider = &self.player.collider; // assuming you have a method to get the player's collider
 
             for collider in colliders {
-                if collider.intersects(&player_collider) {
+                if collider.overlaps(&player_collider) {
                     // handle collision
                     eprintln!("Collision: {}", room.name);
                 }
             }
         }
-
-        eprintln!("Pos: {}", self.player.position);
-
     }
 }
