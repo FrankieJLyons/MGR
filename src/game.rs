@@ -49,15 +49,18 @@ impl Game {
 
         // check for collisions with the player's collider
         if let Some(room) = current_room {
+
             let colliders = &room.collider_map.colliders;
-            let player_collider = &self.player.collider; // assuming you have a method to get the player's collider
+            let player_collider = &self.player.collider;
 
             for collider in colliders {
-                if collider.overlaps(&player_collider) {
+                if collider.overlaps(player_collider) {
                     // handle collision
                     eprintln!("Collision: {}", room.name);
-                }
+                } 
             }
+        } else {
+            eprintln!("Out of Bounds: Player Position = {:?}", self.player.position);
         }
     }
 }

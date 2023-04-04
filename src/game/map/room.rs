@@ -1,9 +1,9 @@
 use macroquad::prelude::*;
 use std::path::Path;
 
-mod colliderMap;
+mod collidermap;
 
-use colliderMap::ColliderMap;
+use collidermap::ColliderMap;
 
 #[derive(Debug, Clone)]
 pub struct Room {
@@ -41,10 +41,10 @@ impl Room {
 
         let p = Path::new(&collider_path);
         if p.exists() {
-            collider_map = ColliderMap::new(&collider_path).await;
+            collider_map = ColliderMap::new(&collider_path, bounds).await;
         } else {
             // eprintln!("File does not exist: {}", &collider_path);
-            collider_map = ColliderMap::new("assets/rooms/colliders/xxx.png").await;
+            collider_map = ColliderMap::new("assets/rooms/colliders/xxx.png", bounds).await;
         }
 
         Room {
@@ -69,7 +69,7 @@ impl Room {
         );
 
         // Debug info
-        self.collider_map.draw(self.bounds);
+        self.collider_map.draw();
 
         draw_text(
             &self.name,
