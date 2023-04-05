@@ -1,6 +1,8 @@
 use macroquad::prelude::*;
 use std::time::Duration;
+use std::collections::HashMap;
 
+#[derive(Debug, Clone)]
 pub struct Player {
     texture: Texture2D,
     textures: [Texture2D; 2],    
@@ -8,19 +10,22 @@ pub struct Player {
     frame_delay: Duration,
     last_frame_update: std::time::Instant,
     state: State,
-    direction: Direction,
+    pub direction: Direction,
     pub position: Vec2,
     pub speed: f32,
     pub collider: Rect,
+    dir_map: HashMap<String, bool>
 }
 
 // Enums
+#[derive(Debug, Clone)]
 enum State {
     Standing,
     Walking,
 }
 
-enum Direction {
+#[derive(Debug, Clone, PartialEq)]
+pub enum Direction {
     Down,
     Left,
     Up,
@@ -51,6 +56,13 @@ impl Player {
         let walking_texture = load_texture("assets/snake/walking.png").await.unwrap();
         walking_texture.set_filter(FilterMode::Nearest);
 
+        let mut my_map: HashMap<String, bool> = HashMap::new();
+        // Add key-value pairs to the map
+        my_map.insert(String::from("LEFT"), true);
+        my_map.insert(String::from("RIGHT"), true);
+        my_map.insert(String::from("UP"), true);
+        my_map.insert(String::from("DOWN"), true);
+
         // Set self
         Self {
             texture: standing_texture,
@@ -62,7 +74,8 @@ impl Player {
             frame_counter: 0,
             frame_delay: Duration::from_millis(SHUTTER),
             last_frame_update: std::time::Instant::now(),
-            collider: Rect::new(0.0, FS_STANDING.y / 2.0, FS_STANDING.x, FS_STANDING.y / 2.0)
+            collider: Rect::new(START_POS.x, START_POS.y + OFFSET_COL_POS, FS_STANDING.x, FS_STANDING.y / 2.0),
+            dir_map: my_map
         }
     }
 
@@ -101,20 +114,44 @@ impl Player {
                 {
                     self.state = State::Standing;
                     self.frame_counter = 0;
+                    self.dir_map.insert(String::from("UP"), true);
+                    self.dir_map.insert(String::from("DOWN"), true);
+                    self.dir_map.insert(String::from("LEFT"), true);
+                    self.dir_map.insert(String::from("RIGHT"), true);
                 } else {
                     self.update_frame_counter();
                     if is_key_down(KeyCode::Down) {
                         self.direction = Direction::Down;
-                        self.position.y += self.speed;
+                        if self.dir_map.get("DOWN") == Some(&true) {
+                            self.position.y += self.speed;
+                        }
+                        if self.dir_map.get("UP") == Some(&false) {
+                            self.dir_map.insert(String::from("UP"), true);
+                        }
                     } else if is_key_down(KeyCode::Left) {
                         self.direction = Direction::Left;
+                        if self.dir_map.get("LEFT") == Some(&true) {
                         self.position.x -= self.speed;
+                        }
+                        if self.dir_map.get("RIGHT") == Some(&false) {
+                            self.dir_map.insert(String::from("RIGHT"), true);
+                        }
                     } else if is_key_down(KeyCode::Up) {
                         self.direction = Direction::Up;
-                        self.position.y -= self.speed;
+                        if self.dir_map.get("UP") == Some(&true) {
+                            self.position.y -= self.speed;
+                        }
+                        if self.dir_map.get("DOWN") == Some(&false) {
+                            self.dir_map.insert(String::from("DOWN"), true);
+                        }
                     } else if is_key_down(KeyCode::Right) {
                         self.direction = Direction::Right;
-                        self.position.x += self.speed;
+                        if self.dir_map.get("RIGHT") == Some(&true) {
+                            self.position.x += self.speed;
+                        }
+                        if self.dir_map.get("LEFT") == Some(&false) {
+                            self.dir_map.insert(String::from("LEFT"), true);
+                        }
                     }
                 }
             }
@@ -154,14 +191,14 @@ impl Player {
         // Set collider based on destination
         self.collider = Rect::new(
             dest_rect.x,
-            dest_rect.y,
+            dest_rect.y + OFFSET_COL_POS,
             dest_rect.w,
             dest_rect.h / 2.0
         );
 
         draw_rectangle(
             self.collider.x,
-            self.collider.y + OFFSET_COL_POS,
+            self.collider.y,
             self.collider.w,
             self.collider.h,
             Color::new(0.0, 1.0, 0.0, 0.5),
@@ -179,6 +216,12 @@ impl Player {
                 ..Default::default()
             },
         );
+    }
+
+    pub fn set_collision(&mut self, x: f32, y: f32, dir: String) {
+        self.position.x = x;
+        self.position.y = y;
+        self.dir_map.insert(dir, false);
     }
 
     // Private
