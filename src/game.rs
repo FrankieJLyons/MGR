@@ -89,7 +89,7 @@ impl Game {
                         dir = String::from("DOWN");
                     }
 
-                    self.player.set_collision(self.player.position.x + diff_x * 1.02, self.player.position.y + diff_y * 1.02, dir);
+                    self.player.set_collision(self.player.position.x + diff_x * 1.01, self.player.position.y + diff_y * 1.01, dir);
                 }
                 
             }

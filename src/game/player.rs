@@ -125,33 +125,33 @@ impl Player {
                         if self.dir_map.get("DOWN") == Some(&true) {
                             self.position.y += self.speed;
                         }
-                        if self.dir_map.get("UP") == Some(&false) {
-                            self.dir_map.insert(String::from("UP"), true);
-                        }
+                        self.dir_map.insert(String::from("UP"), true);
+                        self.dir_map.insert(String::from("LEFT"), true);
+                        self.dir_map.insert(String::from("RIGHT"), true);
                     } else if is_key_down(KeyCode::Left) {
                         self.direction = Direction::Left;
                         if self.dir_map.get("LEFT") == Some(&true) {
                         self.position.x -= self.speed;
                         }
-                        if self.dir_map.get("RIGHT") == Some(&false) {
-                            self.dir_map.insert(String::from("RIGHT"), true);
-                        }
+                        self.dir_map.insert(String::from("DOWN"), true);
+                        self.dir_map.insert(String::from("UP"), true);
+                        self.dir_map.insert(String::from("RIGHT"), true);
                     } else if is_key_down(KeyCode::Up) {
                         self.direction = Direction::Up;
                         if self.dir_map.get("UP") == Some(&true) {
                             self.position.y -= self.speed;
                         }
-                        if self.dir_map.get("DOWN") == Some(&false) {
-                            self.dir_map.insert(String::from("DOWN"), true);
-                        }
+                        self.dir_map.insert(String::from("DOWN"), true);
+                        self.dir_map.insert(String::from("LEFT"), true);
+                        self.dir_map.insert(String::from("RIGHT"), true);
                     } else if is_key_down(KeyCode::Right) {
                         self.direction = Direction::Right;
                         if self.dir_map.get("RIGHT") == Some(&true) {
                             self.position.x += self.speed;
                         }
-                        if self.dir_map.get("LEFT") == Some(&false) {
-                            self.dir_map.insert(String::from("LEFT"), true);
-                        }
+                        self.dir_map.insert(String::from("DOWN"), true);
+                        self.dir_map.insert(String::from("LEFT"), true);
+                        self.dir_map.insert(String::from("UP"), true);
                     }
                 }
             }
@@ -245,5 +245,13 @@ impl Player {
 
         // Return current frame
         self.frame_counter
+    }
+
+    fn clear_blockers(&mut self, str: String) {
+        for (key, _value) in self.dir_map.clone() {
+            if key != str {
+                self.dir_map.insert(key.to_string(), true);
+            }
+        }
     }
 }
