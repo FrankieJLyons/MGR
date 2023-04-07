@@ -20,9 +20,29 @@ impl ColliderMap {
             for x in 0..image.width() {
                 let pixel = image.get_pixel(x as u32, y as u32);
 
-                let n_pix = image.get_pixel(x as u32, (y - 1) as u32);
+                let mut n_pix = RED;
+                let mut s_pix = RED;
+                let mut e_pix = RED;
+                let mut w_pix = RED;
+                if y > 0 {
+                    n_pix = image.get_pixel(x as u32, (y - 1) as u32);
+                }
+                if y < image.height() - 1 {
+                    s_pix = image.get_pixel(x as u32, (y + 1) as u32);
+                }
+                if x > 0 {
+                    w_pix = image.get_pixel((x - 1) as u32, y as u32);
+                }
+                if x < image.width() - 1 {
+                    e_pix = image.get_pixel((x + 1) as u32, y as u32);
+                }
 
-                if pixel == BLACK {
+                let mut beside_walkway = false;
+                if n_pix == WHITE || s_pix == WHITE || e_pix == WHITE || w_pix == WHITE {
+                    beside_walkway = true;
+                }
+
+                if pixel == BLACK && beside_walkway {
                     let collider_rect = Rect::new(
                         (x as f32) * SIZE + parent_bounds.x,
                         (y as f32) * SIZE + parent_bounds.y,
