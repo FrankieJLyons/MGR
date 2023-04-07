@@ -40,16 +40,16 @@ impl ColliderMap {
     }
 
     pub fn draw(&self) {
-        // draw_texture_ex(
-        //     self.texture,
-        //     self.parent_bounds.x,
-        //     self.parent_bounds.y,
-        //     Color::new(1.0, 1.0, 1.0, 0.5),
-        //     DrawTextureParams {
-        //         dest_size: Some(self.parent_bounds.size()),
-        //         ..Default::default()
-        //     },
-        // );
+        draw_texture_ex(
+            self.texture,
+            self.parent_bounds.x,
+            self.parent_bounds.y,
+            Color::new(1.0, 1.0, 1.0, 0.5),
+            DrawTextureParams {
+                dest_size: Some(self.parent_bounds.size()),
+                ..Default::default()
+            },
+        );
 
         for collider in &self.colliders {
             draw_rectangle(
