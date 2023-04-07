@@ -186,7 +186,7 @@ impl Player {
             self.bounds.x,
             self.bounds.y + OFFSET_COL_POS,
             self.bounds.w,
-            self.bounds.h / 2.0
+            self.bounds.h * 0.5
         );
 
         draw_rectangle(
