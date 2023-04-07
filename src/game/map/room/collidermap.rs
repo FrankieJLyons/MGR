@@ -19,6 +19,9 @@ impl ColliderMap {
         for y in 0..image.height() {
             for x in 0..image.width() {
                 let pixel = image.get_pixel(x as u32, y as u32);
+
+                let n_pix = image.get_pixel(x as u32, (y - 1) as u32);
+
                 if pixel == BLACK {
                     let collider_rect = Rect::new(
                         (x as f32) * SIZE + parent_bounds.x,
