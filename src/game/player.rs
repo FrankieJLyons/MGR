@@ -71,7 +71,7 @@ impl Player {
             frame_delay: Duration::from_millis(SHUTTER),
             last_frame_update: std::time::Instant::now(),
             bounds: Rect::new(START_POS.x, START_POS.y, FS_STANDING.x * SCALE, FS_STANDING.y * SCALE),
-            collider: Rect::new(START_POS.x, START_POS.y + OFFSET_COL_POS, FS_STANDING.x, FS_STANDING.y / 2.0),
+            collider: Rect::new(START_POS.x, START_POS.y + OFFSET_COL_POS, FS_STANDING.x, FS_STANDING.y * 0.5),
             col_arr
         }
     }
