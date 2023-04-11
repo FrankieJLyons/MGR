@@ -72,47 +72,50 @@ impl Game {
         for collider in colliders {
             if collider.overlaps(&self.player.collider) { 
                 // Easy maths
-                let col_right = collider.x + collider.w;
-                let col_bottom = collider.y + collider.h;
-                let play_right = self.player.collider.x + self.player.collider.w;
-                let play_bottom = self.player.collider.y + self.player.collider.h;
+                let right = collider.x + collider.w;
+                let bottom = collider.y + collider.h;
                 let buffer = 0.5;
 
-                if self.player.direction == Direction::Up {
-                    if self.player.collider.y < col_bottom || self.player.collider.y + self.player.speed < col_bottom {
-                        self.player.position.y = col_bottom - OFFSET_COL_POS + buffer;
-                        self.player.col_arr[0] = true;
-                    } else {
-                        self.player.col_arr[0] = false;
-                    }
+                let col_up = Vec2::new(collider.center().x, collider.y);
+                let col_down = Vec2::new(collider.center().x, bottom);
+                let col_left = Vec2::new(collider.x, collider.center().y);
+                let col_right = Vec2::new(right, collider.center().y);
+
+                let distances = [
+                    self.player.collider.center().distance(col_down),
+                    self.player.collider.center().distance(col_up),
+                    self.player.collider.center().distance(col_right),
+                    self.player.collider.center().distance(col_left),
+                ];
+
+                let closest_index = distances
+                    .iter()
+                    .enumerate()
+                    .min_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
+                    .map(|(i, _)| i)
+                    .unwrap();
+
+                if closest_index == 0 {
+                    self.player.position.y = bottom - OFFSET_COL_POS + buffer;
+                    self.player.col_arr[0] = true;
                 } 
 
-                else if self.player.direction == Direction::Down {
-                    if play_bottom > collider.y || play_bottom - self.player.speed > collider.y  {
-                        self.player.position.y = collider.y - self.player.bounds.h - buffer;
-                        self.player.col_arr[1] = true;
-                    } else {
-                        self.player.col_arr[1] = false;
-                    }
+                else if closest_index == 1 {
+                    self.player.position.y = collider.y - self.player.bounds.h - buffer;
+                    self.player.col_arr[1] = true;
                 }
                 
-                else if self.player.direction == Direction::Left {
-                    if self.player.collider.x < col_right || self.player.collider.x + self.player.speed < col_right  {
-                        self.player.position.x = col_right + buffer;
-                        self.player.col_arr[2] = true;
-                    } else {
-                        self.player.col_arr[2] = false;
-                    }
+                else if closest_index == 2 {
+                    self.player.position.x = right + buffer;
+                    self.player.col_arr[2] = true;
                 }
 
-                else if self.player.direction == Direction::Right {
-                    if play_right > collider.x || play_right - self.player.speed > collider.x  {
-                        self.player.position.x = collider.x - self.player.collider.w - buffer;
-                        self.player.col_arr[3] = true;
-                    } else {
-                        self.player.col_arr[3] = false;
-                    }
+                else if closest_index == 3 {
+                    self.player.position.x = collider.x - self.player.collider.w - buffer;
+                    self.player.col_arr[3] = true;
                 }
+
+                break;
             } 
         }
     }
