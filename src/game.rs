@@ -114,8 +114,6 @@ impl Game {
                     self.player.position.x = collider.x - self.player.collider.w - buffer;
                     self.player.col_arr[3] = true;
                 }
-
-                break;
             } 
         }
     }
