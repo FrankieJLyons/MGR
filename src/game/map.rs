@@ -3,15 +3,18 @@ use macroquad::prelude::*;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
+use crate::game::Settings;
+
 pub mod room;
 use self::room::Room;
 
 pub struct Map {
+    settings: Settings,
     pub rooms: Vec<Room>,
 }
 
 impl Map {
-    pub async fn new(map_file: &str) -> Self {
+    pub async fn new(settings: Settings, map_file: &str) -> Self {
         // Load all the tile textures and collision maps here
         let mut tiles = Vec::new();
 
@@ -41,14 +44,19 @@ impl Map {
         }
 
         Map {
+            settings,
             rooms: tiles
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&mut self) {
+        self.settings.update();
         // Draw all the tiles in the map grid
         for r in &self.rooms {
             r.draw();
+            if self.settings.debug {
+                r.draw_debug();
+            }
         }
     }
 }

@@ -1,15 +1,16 @@
 use macroquad::prelude::*;
 
+pub mod settings;
 pub mod player;
 pub mod map;
 
-use crate::game::player::Direction;
-
-use self::map::room::Room;
-use self::player::{Player, OFFSET_COL_POS};
+use self::settings::Settings;
+use self::player::Player;
 use self::map::Map;
+use self::map::room::Room;
 
 pub struct Game {
+    settings: Settings,
     player: Player,
     map: Map,
     current_room: Room,
@@ -19,17 +20,21 @@ pub struct Game {
 
 impl Game {
     pub async fn new() -> Result<Self, FileError> {
-        let player = Player::new().await;
-        let map = Map::new("assets/rooms/arrays/b1_f1.txt").await;
+        let settings = Settings::new();
+
+        let player = Player::new(settings).await;
+        let map = Map::new(settings, "assets/rooms/arrays/b1_f1.txt").await;
 
         let rooms = &map.rooms;
         let found_room = rooms.iter().find(|room| room.bounds.contains(player.collider.center()));
         let current_room = found_room.unwrap().clone();
         
-        Ok(Self { player, map, current_room, time_since_last_check: 0.0, check_interval: 1.0})
+        Ok(Self { settings, player, map, current_room, time_since_last_check: 0.0, check_interval: 1.0})
     }
 
-    pub fn update(&mut self) {      
+    pub fn update(&mut self) {   
+        self.settings.update();
+           
         self.player.update();
 
         self.room_getter(get_frame_time());
@@ -45,12 +50,21 @@ impl Game {
 
     fn camera_update(&self) {
         let camera_position = self.player.position;
-        set_camera(&Camera2D {
-            //zoom: vec2(1.0 / screen_width() / 2.0, -1.0 / screen_height() / 2.0), // half zoom
-            zoom: vec2(1.0 / screen_width() * 2.0, -1.0 / screen_height() * 2.0), // full view
-            target: camera_position,
-            ..Default::default()
-        });
+
+        if self.settings.zoom {
+            set_camera(&Camera2D {
+                zoom: vec2(1.0 / screen_width() / 2.0, -1.0 / screen_height() / 2.0), // half zoom
+                target: camera_position,
+                ..Default::default()
+            });
+        } else {
+            set_camera(&Camera2D {
+                zoom: vec2(1.0 / screen_width() * 2.0, -1.0 / screen_height() * 2.0), // full view
+                target: camera_position,
+                ..Default::default()
+            });
+        }
+        
     }
 
     fn room_getter(&mut self, delta_time: f32) {
@@ -96,7 +110,7 @@ impl Game {
                     .unwrap();
 
                 if closest_index == 0 {
-                    self.player.position.y = bottom - OFFSET_COL_POS + buffer;
+                    self.player.position.y = bottom - self.player.bounds.h * 0.5 + buffer;
                     self.player.col_arr[0] = true;
                 } 
 
@@ -106,12 +120,12 @@ impl Game {
                 }
                 
                 else if closest_index == 2 {
-                    self.player.position.x = right + buffer;
+                    self.player.position.x = right - self.player.collider.w * 0.1 + buffer;
                     self.player.col_arr[2] = true;
                 }
 
                 else if closest_index == 3 {
-                    self.player.position.x = collider.x - self.player.collider.w - buffer;
+                    self.player.position.x = collider.x - self.player.bounds.w * 0.9 - buffer;
                     self.player.col_arr[3] = true;
                 }
             } 

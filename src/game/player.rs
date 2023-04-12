@@ -1,8 +1,11 @@
 use macroquad::prelude::*;
 use std::{time::Duration};
 
+use crate::game::Settings;
+
 #[derive(Debug, Clone)]
 pub struct Player {
+    settings: Settings,
     texture: Texture2D,
     textures: [Texture2D; 2],    
     frame_counter: u32,
@@ -44,11 +47,10 @@ const START_POS: Vec2 = Vec2::new(512.0 - FS_STANDING.x / 2.0, 384.0 * 8.5);
 const SCALE: f32 = 3.0;
 const SPEED: f32 = 2.56;
 const SHUTTER: u64 = 224;
-pub const OFFSET_COL_POS: f32 = FS_STANDING.y * SCALE / 2.0;
 
 impl Player {
     // Public
-    pub async fn new() -> Self {
+    pub async fn new(settings: Settings) -> Self {
         // Load Textures
         let standing_texture = load_texture("assets/snake/standing.png").await.unwrap();
         standing_texture.set_filter(FilterMode::Nearest);
@@ -61,6 +63,7 @@ impl Player {
 
         // Set self
         Self {
+            settings,
             texture: standing_texture,
             textures: [standing_texture, walking_texture],
             state: State::Standing,
@@ -71,7 +74,7 @@ impl Player {
             frame_delay: Duration::from_millis(SHUTTER),
             last_frame_update: std::time::Instant::now(),
             bounds: Rect::new(START_POS.x, START_POS.y, FS_STANDING.x * SCALE, FS_STANDING.y * SCALE),
-            collider: Rect::new(START_POS.x, START_POS.y + OFFSET_COL_POS, FS_STANDING.x, FS_STANDING.y * 0.5),
+            collider: Rect::new(START_POS.x, START_POS.y + FS_STANDING.y * SCALE / 2.0, FS_STANDING.x, FS_STANDING.y * 0.5),
             col_arr
         }
     }
@@ -149,6 +152,13 @@ impl Player {
                 }
             }
         }
+ 
+        self.settings.update();
+        if self.settings.debug {
+            self.speed = SPEED * 2.0;
+        } else {
+            self.speed = SPEED;
+        }
     }
     
     pub fn draw(&mut self) {
@@ -183,21 +193,24 @@ impl Player {
 
         // Set collider based on destination
         self.collider = Rect::new(
-            self.bounds.x,
-            self.bounds.y + OFFSET_COL_POS,
-            self.bounds.w,
+            self.bounds.x + self.bounds.w * 0.1,
+            self.bounds.y + self.bounds.h * 0.5,
+            self.bounds.w * 0.8,
             self.bounds.h * 0.5
         );
 
-        draw_rectangle(
-            self.collider.x,
-            self.collider.y,
-            self.collider.w,
-            self.collider.h,
-            Color::new(0.0, 1.0, 0.0, 0.5),
-        );
-
         // Draw
+
+        if self.settings.debug {
+            draw_rectangle(
+                self.collider.x,
+                self.collider.y,
+                self.collider.w,
+                self.collider.h,
+                Color::new(0.0, 1.0, 0.0, 0.5),
+            );
+        }
+
         draw_texture_ex(
             self.texture,
             self.bounds.x,

@@ -67,7 +67,9 @@ impl Room {
                 ..Default::default()
             },
         );
+    }
 
+    pub fn draw_debug(&self) {
         // Debug info
         self.collider_map.draw();
 
