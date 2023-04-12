@@ -86,20 +86,15 @@ impl Game {
         for collider in colliders {
             if collider.overlaps(&self.player.collider) { 
                 // Easy maths
-                let right = collider.x + collider.w;
-                let bottom = collider.y + collider.h;
+                let collider_right = collider.x + collider.w;
+                let collider_bottom = collider.y + collider.h;
                 let buffer = 0.5;
 
-                let col_up = Vec2::new(collider.center().x, collider.y);
-                let col_down = Vec2::new(collider.center().x, bottom);
-                let col_left = Vec2::new(collider.x, collider.center().y);
-                let col_right = Vec2::new(right, collider.center().y);
-
                 let distances = [
-                    self.player.collider.center().distance(col_down),
-                    self.player.collider.center().distance(col_up),
-                    self.player.collider.center().distance(col_right),
-                    self.player.collider.center().distance(col_left),
+                    self.player.collider.center().distance(Vec2::new(collider.center().x, collider_bottom)),
+                    self.player.collider.center().distance(Vec2::new(collider.center().x, collider.y)),
+                    self.player.collider.center().distance(Vec2::new(collider_right, collider.center().y)),
+                    self.player.collider.center().distance(Vec2::new(collider.x, collider.center().y)),
                 ];
 
                 let closest_index = distances
@@ -110,7 +105,7 @@ impl Game {
                     .unwrap();
 
                 if closest_index == 0 {
-                    self.player.position.y = bottom - self.player.bounds.h * 0.5 + buffer;
+                    self.player.position.y = collider_bottom - self.player.collider.h + buffer;
                     self.player.col_arr[0] = true;
                 } 
 
@@ -120,7 +115,7 @@ impl Game {
                 }
                 
                 else if closest_index == 2 {
-                    self.player.position.x = right - self.player.collider.w * 0.1 + buffer;
+                    self.player.position.x = collider_right - self.player.collider.w * 0.1 + buffer;
                     self.player.col_arr[2] = true;
                 }
 
