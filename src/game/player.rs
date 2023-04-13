@@ -74,7 +74,7 @@ impl Player {
             frame_delay: Duration::from_millis(SHUTTER),
             last_frame_update: std::time::Instant::now(),
             bounds: Rect::new(START_POS.x, START_POS.y, FS_STANDING.x * SCALE, FS_STANDING.y * SCALE),
-            collider: Rect::new(START_POS.x, START_POS.y + FS_STANDING.y * SCALE / 2.0, FS_STANDING.x, FS_STANDING.y * 0.5),
+            collider: Rect::new(START_POS.x, START_POS.y + FS_STANDING.y * SCALE * 0.5, FS_STANDING.x, FS_STANDING.y * SCALE * 0.5),
             col_arr
         }
     }
@@ -193,9 +193,9 @@ impl Player {
 
         // Set collider based on destination
         self.collider = Rect::new(
-            self.bounds.x + self.bounds.w * 0.1,
+            self.bounds.x,
             self.bounds.y + self.bounds.h * 0.5,
-            self.bounds.w * 0.8,
+            self.bounds.w,
             self.bounds.h * 0.5
         );
 

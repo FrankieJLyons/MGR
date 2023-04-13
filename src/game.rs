@@ -46,6 +46,11 @@ impl Game {
     pub fn draw(&mut self) {
         self.map.draw();
         self.player.draw();
+
+        if self.settings.debug {
+            draw_text(&format!("FPS: {:?}", get_fps()), self.player.position.x, self.player.position.y, 64.0, WHITE);
+            // eprintln!("FPS: {:?}", get_fps());
+        }
     }
 
     fn camera_update(&self) {
@@ -64,7 +69,6 @@ impl Game {
                 ..Default::default()
             });
         }
-        
     }
 
     fn room_getter(&mut self, delta_time: f32) {
@@ -74,7 +78,11 @@ impl Game {
             if !self.current_room.bounds.contains(self.player.collider.center()) {
                 let rooms = &self.map.rooms;
                 let found_room = rooms.iter().find(|room| room.bounds.contains(self.player.collider.center()));
-                self.current_room = found_room.unwrap().clone();
+                if found_room.is_some() {
+                    self.current_room = found_room.unwrap().clone();
+                } else {
+                    eprintln!("OOB: {:?}", self.player.position);
+                }
             }
         }
 
@@ -88,7 +96,7 @@ impl Game {
                 // Easy maths
                 let collider_right = collider.x + collider.w;
                 let collider_bottom = collider.y + collider.h;
-                let buffer = 0.5;
+                let buffer = 0.05;
 
                 let distances = [
                     self.player.collider.center().distance(Vec2::new(collider.center().x, collider_bottom)),
@@ -106,23 +114,22 @@ impl Game {
 
                 if closest_index == 0 {
                     self.player.position.y = collider_bottom - self.player.collider.h + buffer;
-                    self.player.col_arr[0] = true;
                 } 
 
                 else if closest_index == 1 {
                     self.player.position.y = collider.y - self.player.bounds.h - buffer;
-                    self.player.col_arr[1] = true;
                 }
                 
                 else if closest_index == 2 {
-                    self.player.position.x = collider_right - self.player.collider.w * 0.1 + buffer;
-                    self.player.col_arr[2] = true;
+                    self.player.position.x = collider_right + buffer;
                 }
 
                 else if closest_index == 3 {
-                    self.player.position.x = collider.x - self.player.bounds.w * 0.9 - buffer;
-                    self.player.col_arr[3] = true;
+                    self.player.position.x = collider.x - self.player.bounds.w - buffer;
                 }
+
+                self.player.col_arr[closest_index] = true;
+                break;
             } 
         }
     }
