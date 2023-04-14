@@ -48,6 +48,9 @@ const SCALE: f32 = 3.0;
 const SPEED: f32 = 2.56;
 const SHUTTER: u64 = 224;
 
+
+// const DEBUG_POS: Vec2 = Vec2::new(512.0 - FS_STANDING.x / 2.0 + 512.0 * 8.0, 384.0 * 4.5);
+
 impl Player {
     // Public
     pub async fn new(settings: Settings) -> Self {
@@ -74,7 +77,7 @@ impl Player {
             frame_delay: Duration::from_millis(SHUTTER),
             last_frame_update: std::time::Instant::now(),
             bounds: Rect::new(START_POS.x, START_POS.y, FS_STANDING.x * SCALE, FS_STANDING.y * SCALE),
-            collider: Rect::new(START_POS.x, START_POS.y + FS_STANDING.y * SCALE * 0.5, FS_STANDING.x, FS_STANDING.y * SCALE * 0.5),
+            collider: Rect::new(START_POS.x, START_POS.y + FS_STANDING.y * SCALE * 0.4, FS_STANDING.x, FS_STANDING.y * SCALE * 0.6),
             col_arr
         }
     }
@@ -194,13 +197,12 @@ impl Player {
         // Set collider based on destination
         self.collider = Rect::new(
             self.bounds.x,
-            self.bounds.y + self.bounds.h * 0.5,
+            self.bounds.y + self.bounds.h * 0.4,
             self.bounds.w,
-            self.bounds.h * 0.5
+            self.bounds.h * 0.6
         );
 
         // Draw
-
         if self.settings.debug {
             draw_rectangle(
                 self.collider.x,

@@ -94,14 +94,14 @@ impl Game {
         for collider in colliders {
             if collider.overlaps(&self.player.collider) { 
                 // Easy maths
-                let collider_right = collider.x + collider.w;
-                let collider_bottom = collider.y + collider.h;
+                let collider_r = collider.x + collider.w;
+                let collider_b = collider.y + collider.h;
                 let buffer = 0.05;
 
                 let distances = [
-                    self.player.collider.center().distance(Vec2::new(collider.center().x, collider_bottom)),
+                    self.player.collider.center().distance(Vec2::new(collider.center().x, collider_b)),
                     self.player.collider.center().distance(Vec2::new(collider.center().x, collider.y)),
-                    self.player.collider.center().distance(Vec2::new(collider_right, collider.center().y)),
+                    self.player.collider.center().distance(Vec2::new(collider_r, collider.center().y)),
                     self.player.collider.center().distance(Vec2::new(collider.x, collider.center().y)),
                 ];
 
@@ -112,22 +112,10 @@ impl Game {
                     .map(|(i, _)| i)
                     .unwrap();
 
-                if closest_index == 0 {
-                    self.player.position.y = collider_bottom - self.player.collider.h + buffer;
-                } 
-
-                else if closest_index == 1 {
-                    self.player.position.y = collider.y - self.player.bounds.h - buffer;
-                }
-                
-                else if closest_index == 2 {
-                    self.player.position.x = collider_right + buffer;
-                }
-
-                else if closest_index == 3 {
-                    self.player.position.x = collider.x - self.player.bounds.w - buffer;
-                }
-
+                if      closest_index == 0 { self.player.position.y = collider_b - self.player.collider.h * 0.66 + buffer; } 
+                else if closest_index == 1 { self.player.position.y = collider.y - self.player.bounds.h - buffer; }
+                else if closest_index == 2 { self.player.position.x = collider_r + buffer; }
+                else if closest_index == 3 { self.player.position.x = collider.x - self.player.bounds.w - buffer; }
                 self.player.col_arr[closest_index] = true;
                 break;
             } 
