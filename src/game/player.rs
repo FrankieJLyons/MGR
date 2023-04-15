@@ -45,7 +45,7 @@ const MF_WALKING: u32 = 2;
 // Conts
 const START_POS: Vec2 = Vec2::new(512.0 - FS_STANDING.x / 2.0, 384.0 * 8.5);
 const SCALE: f32 = 3.0;
-const SPEED: f32 = 2.56;
+const SPEED: f32 = 256.0;
 const SHUTTER: u64 = 224;
 
 
@@ -82,7 +82,7 @@ impl Player {
         }
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, delta_time: f32) {
         // Pattern:
         //// State,
         //// Texture,
@@ -124,7 +124,7 @@ impl Player {
                     if is_key_down(KeyCode::Up) {
                         self.direction = Direction::Up;
                         if !self.col_arr[0] {
-                            self.position.y -= self.speed;
+                            self.position.y -= self.speed * delta_time;
                         }
                         self.col_arr = [self.col_arr[0], false, false, false];
                     } 
@@ -132,7 +132,7 @@ impl Player {
                     else if is_key_down(KeyCode::Down) {
                         self.direction = Direction::Down;
                         if !self.col_arr[1] {
-                            self.position.y += self.speed;
+                            self.position.y += self.speed * delta_time;
                         }
                         self.col_arr = [false, self.col_arr[1], false, false];
                     } 
@@ -140,7 +140,7 @@ impl Player {
                     else if is_key_down(KeyCode::Left) {
                         self.direction = Direction::Left;
                         if !self.col_arr[2] {
-                            self.position.x -= self.speed;
+                            self.position.x -= self.speed * delta_time;
                         }
                         self.col_arr = [false, false, self.col_arr[2], false];
                     } 
@@ -148,7 +148,7 @@ impl Player {
                     else if is_key_down(KeyCode::Right) {
                         self.direction = Direction::Right;
                         if !self.col_arr[3] {
-                            self.position.x += self.speed;
+                            self.position.x += self.speed * delta_time;
                         }
                         self.col_arr = [false, false, false, self.col_arr[3]];
                     }

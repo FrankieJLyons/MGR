@@ -1,5 +1,6 @@
 use macroquad::prelude::*;
 
+
 pub mod settings;
 pub mod player;
 pub mod map;
@@ -15,7 +16,8 @@ pub struct Game {
     map: Map,
     current_room: Room,
     time_since_last_check: f32,
-    check_interval: f32
+    check_interval: f32,
+    delta_time: f32
 }
 
 impl Game {
@@ -29,13 +31,14 @@ impl Game {
         let found_room = rooms.iter().find(|room| room.bounds.contains(player.collider.center()));
         let current_room = found_room.unwrap().clone();
         
-        Ok(Self { settings, player, map, current_room, time_since_last_check: 0.0, check_interval: 1.0})
+        Ok(Self { settings, player, map, current_room, time_since_last_check: 0.0, check_interval: 1.0, delta_time: 0.0})
     }
 
     pub fn update(&mut self) {   
+        self.delta_time = Game::get_delta_time();
         self.settings.update();
            
-        self.player.update();
+        self.player.update(self.delta_time);
 
         self.room_getter(get_frame_time());
         self.room_collision();
@@ -51,6 +54,22 @@ impl Game {
             draw_text(&format!("FPS: {:?}", get_fps()), self.player.position.x, self.player.position.y, 64.0, WHITE);
             // eprintln!("FPS: {:?}", get_fps());
         }
+    }
+
+    fn get_delta_time() -> f32 {
+        static mut LAST_FRAME_TIME: Option<std::time::Instant> = None;
+        
+        let current_time = std::time::Instant::now();
+        let delta_time = match unsafe { LAST_FRAME_TIME } {
+            Some(last_frame_time) => current_time.duration_since(last_frame_time).as_secs_f32(),
+            None => 0.0,
+        };
+        
+        unsafe {
+            LAST_FRAME_TIME = Some(current_time);
+        }
+        
+        delta_time
     }
 
     fn camera_update(&self) {
