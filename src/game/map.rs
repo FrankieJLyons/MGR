@@ -15,8 +15,8 @@ pub struct Map {
 
 impl Map {
     pub async fn new(settings: Settings, map_file: &str) -> Self {
-        // Load all the tile textures and collision maps here
-        let mut tiles = Vec::new();
+        // Load all the room textures and collision maps here
+        let mut rooms = Vec::new();
 
         let mut map_grid = Vec::new();
 
@@ -27,31 +27,31 @@ impl Map {
         for line in reader.lines() {
             let mut row = Vec::new();
 
-            for tile_id in line.unwrap().split(",").map(|s| s.trim().to_owned()) {
-                row.push(Some(tile_id));
+            for room_id in line.unwrap().split(",").map(|s| s.trim().to_owned()) {
+                row.push(Some(room_id));
             }
             map_grid.push(row);
         }
 
-        // Flatten the map grid into a linear array of tiles
+        // Flatten the map grid into a linear array of rooms
         for (i, row) in map_grid.iter().enumerate() {
             for (j, room) in row.iter().enumerate()  {
-                if let Some(tile_id) = room {
-                    let r = Room::new(&tile_id, Vec2 { x: j as f32, y: i as f32}).await;
-                    tiles.push(r);
+                if let Some(room_id) = room {
+                    let r = Room::new(&room_id, Vec2 { x: j as f32, y: i as f32}).await;
+                    rooms.push(r);
                 }
             }
         }
 
         Map {
             settings,
-            rooms: tiles
+            rooms
         }
     }
 
     pub fn draw(&mut self) {
         self.settings.update();
-        // Draw all the tiles in the map grid
+        // Draw all the rooms in the map grid
         for r in &self.rooms {
             r.draw();
             if self.settings.debug {

@@ -2,6 +2,10 @@
 
 Metal Gear Rust
 
+## Fix
+
+- Allow any input in any order
+
 ## TODO
 
 - Add items menus
