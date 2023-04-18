@@ -56,12 +56,14 @@ impl Game {
         self.settings.update();
         self.item_menu.update();
 
-        self.player.update(self.delta_time);
+        if !self.item_menu.pause {
+            self.player.update(self.delta_time);
 
-        self.room_getter(get_frame_time());
-        self.room_collision();
+            self.room_getter(get_frame_time());
+            self.room_collision();
 
-        self.camera_update();
+            self.camera_update();
+        }
     }
 
     pub fn draw(&mut self) {
