@@ -3,19 +3,19 @@ use macroquad::prelude::*;
 pub mod settings;
 pub mod player;
 pub mod map;
-pub mod itemmenu;
+pub mod equipmenu;
 
 use self::settings::Settings;
 use self::player::Player;
 use self::map::Map;
 use self::map::room::Room;
-use self::itemmenu::ItemMenu;
+use self::equipmenu::EquipMenu;
 
 pub struct Game {
     settings: Settings,
     player: Player,
     map: Map,
-    item_menu: ItemMenu,
+    equip_menu: EquipMenu,
     current_room: Room,
     camera_position: Vec2,
     time_since_last_check: f32,
@@ -30,7 +30,7 @@ impl Game {
         let player = Player::new(settings).await;
         let map = Map::new(settings, "assets/rooms/arrays/b1_f1.txt").await;
 
-        let item_menu = ItemMenu::new().await;
+        let equip_menu = EquipMenu::new().await;
 
         let rooms = &map.rooms;
         let found_room = rooms.iter().find(|room| room.bounds.contains(player.collider.center()));
@@ -42,7 +42,7 @@ impl Game {
             settings,
             player,
             map,
-            item_menu,
+            equip_menu,
             current_room,
             camera_position,
             time_since_last_check: 0.0,
@@ -54,9 +54,9 @@ impl Game {
     pub fn update(&mut self) {
         self.delta_time = Game::get_delta_time();
         self.settings.update();
-        self.item_menu.update();
+        self.equip_menu.update();
 
-        if !self.item_menu.pause {
+        if !self.equip_menu.pause {
             self.player.update(self.delta_time);
 
             self.room_getter(get_frame_time());
@@ -69,7 +69,7 @@ impl Game {
     pub fn draw(&mut self) {
         self.map.draw();
         self.player.draw();
-        self.item_menu.draw(self.camera_position);
+        self.equip_menu.draw(self.camera_position);
 
         if self.settings.debug {
             draw_text(
