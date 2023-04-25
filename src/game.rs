@@ -15,7 +15,6 @@ pub struct Game {
     settings: Settings,
     player: Player,
     map: Map,
-    equip_menu: EquipMenu,
     current_room: Room,
     camera_position: Vec2,
     time_since_last_check: f32,
@@ -30,8 +29,6 @@ impl Game {
         let player = Player::new(settings).await;
         let map = Map::new(settings, "assets/rooms/arrays/b1_f1.txt").await;
 
-        let equip_menu = EquipMenu::new().await;
-
         let rooms = &map.rooms;
         let found_room = rooms.iter().find(|room| room.bounds.contains(player.collider.center()));
         let current_room = found_room.unwrap().clone();
@@ -42,7 +39,6 @@ impl Game {
             settings,
             player,
             map,
-            equip_menu,
             current_room,
             camera_position,
             time_since_last_check: 0.0,
@@ -54,14 +50,9 @@ impl Game {
     pub fn update(&mut self) {
         self.delta_time = Game::get_delta_time();
         self.settings.update();
-        self.equip_menu.update();
 
-        if !self.equip_menu.pause {
-            self.player.update(
-                self.delta_time,
-                self.equip_menu.left_selected,
-                self.equip_menu.right_selected
-            );
+        if !self.player.equip_menu.pause {
+            self.player.update(self.delta_time);
 
             self.room_getter(get_frame_time());
             self.room_collision();
@@ -73,7 +64,7 @@ impl Game {
     pub fn draw(&mut self) {
         self.map.draw();
         self.player.draw();
-        self.equip_menu.draw(self.camera_position);
+        self.player.equip_menu.draw(self.camera_position);
 
         if self.settings.debug {
             draw_text(

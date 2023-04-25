@@ -1,6 +1,7 @@
 use macroquad::prelude::*;
 use std::{ path::Path };
 
+#[derive(Debug, Clone)]
 pub struct EquipMenu {
     pub pause: bool,
     side: bool,

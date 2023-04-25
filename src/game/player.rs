@@ -2,12 +2,14 @@ use macroquad::prelude::*;
 use std::{ time::Duration };
 
 use crate::game::Settings;
+use crate::game::EquipMenu;
 
-use super::equipmenu::{ EquipMenu, Item };
+use super::equipmenu::Item;
 
 #[derive(Debug, Clone)]
 pub struct Player {
     settings: Settings,
+    pub equip_menu: EquipMenu,
     texture: Texture2D,
     textures: [Texture2D; 4],
     frame_counter: u32,
@@ -61,6 +63,8 @@ const SHUTTER: u64 = 224;
 impl Player {
     // Public
     pub async fn new(settings: Settings) -> Self {
+        let equip_menu = EquipMenu::new().await;
+
         // Load Textures
         let standing_texture = load_texture("assets/snake/standing.png").await.unwrap();
         standing_texture.set_filter(FilterMode::Nearest);
@@ -80,6 +84,7 @@ impl Player {
         // Set self
         Self {
             settings,
+            equip_menu,
             texture: standing_texture,
             textures: [
                 standing_texture,
@@ -111,7 +116,7 @@ impl Player {
         }
     }
 
-    pub fn update(&mut self, delta_time: f32, left_equipped: usize, right_equipped: usize) {
+    pub fn update(&mut self, delta_time: f32) {
         // Pattern:
         //// State,
         //// Texture,
@@ -243,7 +248,8 @@ impl Player {
             }
         }
 
-        if right_equipped > 0 {
+        self.equip_menu.update();
+        if self.equip_menu.right_selected > 0 {
             if self.state == State::Standing {
                 self.state = State::StandingGun;
             } else if self.state == State::Walking {
@@ -257,8 +263,8 @@ impl Player {
             }
         }
 
-        if left_equipped > 0 {
-            if left_equipped == Item::Cigs.index() {
+        if self.equip_menu.left_selected > 0 {
+            if self.equip_menu.left_selected == Item::Cigs.index() {
                 if self.health > 1.0 {
                     self.health -= 1.0;
                 }
