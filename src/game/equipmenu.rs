@@ -4,10 +4,10 @@ use std::{ path::Path };
 pub struct EquipMenu {
     pub pause: bool,
     side: bool,
-    left_selected: usize,
+    pub left_selected: usize,
     left_selected_up: usize,
     left_selected_down: usize,
-    right_selected: usize,
+    pub right_selected: usize,
     right_selected_up: usize,
     right_selected_down: usize,
     bg_texture: Texture2D,
@@ -293,11 +293,18 @@ impl std::fmt::Display for Item {
 }
 
 impl Item {
-    fn from_index(index: usize) -> Option<Self> {
+    pub fn from_index(index: usize) -> Option<Self> {
         match index {
             0 => Some(Item::Empty),
             1 => Some(Item::Cigs),
             _ => None,
+        }
+    }
+
+    pub fn index(&self) -> usize {
+        match self {
+            Item::Empty => 0,
+            Item::Cigs => 1,
         }
     }
 }

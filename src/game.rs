@@ -57,7 +57,11 @@ impl Game {
         self.equip_menu.update();
 
         if !self.equip_menu.pause {
-            self.player.update(self.delta_time);
+            self.player.update(
+                self.delta_time,
+                self.equip_menu.left_selected,
+                self.equip_menu.right_selected
+            );
 
             self.room_getter(get_frame_time());
             self.room_collision();

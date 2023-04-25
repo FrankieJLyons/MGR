@@ -5,11 +5,12 @@ Metal Gear Rust
 ## Fix
 
 - Allow any input in any order
+- Seperate out / simplify FNS logic
+- Refactor Item ownsership / add effects class to manage drawing some things
 
 ## TODO
 
-- Add items menus
-- Add gun standing / walking
+- Add smoking
 - Add shooting
 - Add doors
 - Add teleport to sub room
