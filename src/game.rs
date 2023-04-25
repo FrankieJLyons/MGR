@@ -3,12 +3,15 @@ use macroquad::prelude::*;
 pub mod settings;
 pub mod player;
 pub mod map;
+pub mod room;
+pub mod collidermap;
 pub mod equipmenu;
 
 use self::settings::Settings;
 use self::player::Player;
 use self::map::Map;
-use self::map::room::Room;
+use self::room::Room;
+use self::collidermap::ColliderMap;
 use self::equipmenu::EquipMenu;
 
 pub struct Game {

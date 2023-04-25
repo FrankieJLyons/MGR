@@ -15,6 +15,7 @@ pub struct Player {
     frame_counter: u32,
     frame_delay: Duration,
     last_frame_update: std::time::Instant,
+    last_effect_update: std::time::Instant,
     state: State,
     pub direction: Direction,
     pub position: Vec2,
@@ -99,6 +100,7 @@ impl Player {
             frame_counter: 0,
             frame_delay: Duration::from_millis(SHUTTER),
             last_frame_update: std::time::Instant::now(),
+            last_effect_update: std::time::Instant::now(),
             bounds: Rect::new(
                 START_POS.x,
                 START_POS.y,
@@ -265,10 +267,15 @@ impl Player {
 
         if self.equip_menu.left_selected > 0 {
             if self.equip_menu.left_selected == Item::Cigs.index() {
-                if self.health > 1.0 {
-                    self.health -= 1.0;
+                let now = std::time::Instant::now();
+                let elapsed = now - self.last_effect_update;
+                if elapsed >= Duration::from_millis(1000) {
+                    if self.health > 1.0 {
+                        self.health -= 1.0;
+                        eprintln!("Health: {:?}", self.health);
+                    }
+                    self.last_effect_update = now;
                 }
-                eprintln!("Health: {:?}", self.health);
             }
         }
 
@@ -405,12 +412,8 @@ impl Player {
             ..Default::default()
         });
 
-        if left_equipped > 0 {
-            if left_equipped == Item::Cigs.index() {
-                if self.health > 1.0 {
-                    self.health -= 1.0;
-                }
-                eprintln!("Health: {:?}", self.health);
+        if self.equip_menu.left_selected > 0 {
+            if self.equip_menu.left_selected == Item::Cigs.index() {
             }
         }
     }

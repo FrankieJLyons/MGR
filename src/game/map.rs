@@ -1,12 +1,10 @@
 use macroquad::prelude::*;
 
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::{ BufRead, BufReader };
 
 use crate::game::Settings;
-
-pub mod room;
-use self::room::Room;
+use crate::game::Room;
 
 pub struct Map {
     settings: Settings,
@@ -27,7 +25,10 @@ impl Map {
         for line in reader.lines() {
             let mut row = Vec::new();
 
-            for room_id in line.unwrap().split(",").map(|s| s.trim().to_owned()) {
+            for room_id in line
+                .unwrap()
+                .split(",")
+                .map(|s| s.trim().to_owned()) {
                 row.push(Some(room_id));
             }
             map_grid.push(row);
@@ -35,9 +36,9 @@ impl Map {
 
         // Flatten the map grid into a linear array of rooms
         for (i, row) in map_grid.iter().enumerate() {
-            for (j, room) in row.iter().enumerate()  {
+            for (j, room) in row.iter().enumerate() {
                 if let Some(room_id) = room {
-                    let r = Room::new(&room_id, Vec2 { x: j as f32, y: i as f32}).await;
+                    let r = Room::new(&room_id, Vec2 { x: j as f32, y: i as f32 }).await;
                     rooms.push(r);
                 }
             }
@@ -45,7 +46,7 @@ impl Map {
 
         Map {
             settings,
-            rooms
+            rooms,
         }
     }
 
