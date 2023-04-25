@@ -6,6 +6,7 @@ pub mod map;
 pub mod room;
 pub mod collidermap;
 pub mod equipmenu;
+pub mod effect;
 
 use self::settings::Settings;
 use self::player::Player;
@@ -13,6 +14,7 @@ use self::map::Map;
 use self::room::Room;
 use self::collidermap::ColliderMap;
 use self::equipmenu::EquipMenu;
+use self::effect::Effect;
 
 pub struct Game {
     settings: Settings,
@@ -53,6 +55,7 @@ impl Game {
     pub fn update(&mut self) {
         self.delta_time = Game::get_delta_time();
         self.settings.update();
+        self.player.update_equipment();
 
         if !self.player.equip_menu.pause {
             self.player.update(self.delta_time);

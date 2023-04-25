@@ -3,13 +3,16 @@ use std::{ time::Duration };
 
 use crate::game::Settings;
 use crate::game::EquipMenu;
+use crate::game::Effect;
 
+use super::effect;
 use super::equipmenu::Item;
 
 #[derive(Debug, Clone)]
 pub struct Player {
     settings: Settings,
     pub equip_menu: EquipMenu,
+    effect: Effect,
     texture: Texture2D,
     textures: [Texture2D; 4],
     frame_counter: u32,
@@ -65,6 +68,7 @@ impl Player {
     // Public
     pub async fn new(settings: Settings) -> Self {
         let equip_menu = EquipMenu::new().await;
+        let effect = Effect::new().await;
 
         // Load Textures
         let standing_texture = load_texture("assets/snake/standing.png").await.unwrap();
@@ -86,6 +90,7 @@ impl Player {
         Self {
             settings,
             equip_menu,
+            effect,
             texture: standing_texture,
             textures: [
                 standing_texture,
@@ -250,7 +255,17 @@ impl Player {
             }
         }
 
+        self.settings.update();
+        if self.settings.debug {
+            self.speed = SPEED * 2.0;
+        } else {
+            self.speed = SPEED;
+        }
+    }
+
+    pub fn update_equipment(&mut self) {
         self.equip_menu.update();
+
         if self.equip_menu.right_selected > 0 {
             if self.state == State::Standing {
                 self.state = State::StandingGun;
@@ -267,6 +282,8 @@ impl Player {
 
         if self.equip_menu.left_selected > 0 {
             if self.equip_menu.left_selected == Item::Cigs.index() {
+                self.effect.update(self.equip_menu.left_selected);
+
                 let now = std::time::Instant::now();
                 let elapsed = now - self.last_effect_update;
                 if elapsed >= Duration::from_millis(1000) {
@@ -277,13 +294,6 @@ impl Player {
                     self.last_effect_update = now;
                 }
             }
-        }
-
-        self.settings.update();
-        if self.settings.debug {
-            self.speed = SPEED * 2.0;
-        } else {
-            self.speed = SPEED;
         }
     }
 
@@ -414,12 +424,13 @@ impl Player {
 
         if self.equip_menu.left_selected > 0 {
             if self.equip_menu.left_selected == Item::Cigs.index() {
+                self.effect.draw(self.bounds, self.equip_menu.left_selected)
             }
         }
     }
 
     // Private
-    fn update_frame_counter(&mut self) -> u32 {
+    fn update_frame_counter(&mut self) {
         // Update time vars
         let now = std::time::Instant::now();
         let elapsed = now - self.last_frame_update;
@@ -427,9 +438,9 @@ impl Player {
         // Get frame limits
         let max_frames = match self.state {
             State::Standing => 0,
-            State::Walking => 2,
+            State::Walking => MF_WALKING,
             State::StandingGun => 0,
-            State::WalkingGun => 2,
+            State::WalkingGun => MF_WALKING_GUN,
         };
 
         // Check frame vs time
@@ -438,8 +449,5 @@ impl Player {
             let frames = elapsed.as_secs_f32() / self.frame_delay.as_secs_f32();
             self.frame_counter = (self.frame_counter + (frames as u32)) % max_frames;
         }
-
-        // Return current frame
-        self.frame_counter
     }
 }
