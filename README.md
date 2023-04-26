@@ -10,13 +10,12 @@ Metal Gear Rust
 
 ## TODO
 
-- Add smoking
-- Add shooting
+- Add shooting collision / timeout
+- Add punch
 - Add doors
 - Add teleport to sub room
 - Add Radar
 - Add collision sound
-- Add punch
 - Add basic enemy
 - Add basic enemy shooting
 - Add health

@@ -24,7 +24,7 @@ async fn main() {
             std::process::exit(0);
         }
 
-        game.update();
+        game.update().await;
 
         clear_background(PINK);
         game.draw();

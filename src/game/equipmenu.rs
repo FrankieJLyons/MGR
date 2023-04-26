@@ -326,7 +326,7 @@ impl std::fmt::Display for Weapon {
 }
 
 impl Weapon {
-    fn from_index(index: usize) -> Option<Self> {
+    pub fn from_index(index: usize) -> Option<Self> {
         match index {
             0 => Some(Weapon::Empty),
             1 => Some(Weapon::Handgun),

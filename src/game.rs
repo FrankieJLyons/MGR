@@ -7,6 +7,7 @@ pub mod room;
 pub mod collidermap;
 pub mod equipmenu;
 pub mod effect;
+pub mod bullet;
 
 use self::settings::Settings;
 use self::player::Player;
@@ -15,6 +16,7 @@ use self::room::Room;
 use self::collidermap::ColliderMap;
 use self::equipmenu::EquipMenu;
 use self::effect::Effect;
+use self::bullet::Bullet;
 
 pub struct Game {
     settings: Settings,
@@ -52,13 +54,13 @@ impl Game {
         })
     }
 
-    pub fn update(&mut self) {
+    pub async fn update(&mut self) {
         self.delta_time = Game::get_delta_time();
         self.settings.update();
         self.player.update_equipment();
 
         if !self.player.equip_menu.pause {
-            self.player.update(self.delta_time);
+            self.player.update(self.delta_time).await;
 
             self.room_getter(get_frame_time());
             self.room_collision();

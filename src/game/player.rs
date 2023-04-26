@@ -4,9 +4,11 @@ use std::{ time::Duration };
 use crate::game::Settings;
 use crate::game::EquipMenu;
 use crate::game::Effect;
+use crate::game::Bullet;
 
 use super::effect;
 use super::equipmenu::Item;
+use super::equipmenu::Weapon;
 
 #[derive(Debug, Clone)]
 pub struct Player {
@@ -27,6 +29,7 @@ pub struct Player {
     pub collider: Rect,
     pub col_arr: [bool; 4],
     pub health: f32,
+    pub bullets: Vec<Bullet>,
 }
 
 // Enums
@@ -86,6 +89,8 @@ impl Player {
         // Pattern: Up, Down, Left, Right
         let col_arr = [false, false, false, false];
 
+        let mut bullets = Vec::new();
+
         // Set self
         Self {
             settings,
@@ -120,10 +125,11 @@ impl Player {
             ),
             col_arr,
             health: 100.0,
+            bullets,
         }
     }
 
-    pub fn update(&mut self, delta_time: f32) {
+    pub async fn update(&mut self, delta_time: f32) {
         // Pattern:
         //// State,
         //// Texture,
@@ -165,6 +171,10 @@ impl Player {
                     self.frame_counter = 0;
 
                     self.col_arr = [false, false, false, false];
+                }
+
+                if is_key_pressed(KeyCode::F) || is_mouse_button_pressed(MouseButton::Left) {
+                    self.fire_weapon().await;
                 }
             }
 
@@ -255,17 +265,6 @@ impl Player {
             }
         }
 
-        self.settings.update();
-        if self.settings.debug {
-            self.speed = SPEED * 2.0;
-        } else {
-            self.speed = SPEED;
-        }
-    }
-
-    pub fn update_equipment(&mut self) {
-        self.equip_menu.update();
-
         if self.equip_menu.right_selected > 0 {
             if self.state == State::Standing {
                 self.state = State::StandingGun;
@@ -280,8 +279,23 @@ impl Player {
             }
         }
 
+        for bullet in self.bullets.iter_mut() {
+            bullet.update(delta_time);
+        }
+
+        self.settings.update();
+        if self.settings.debug {
+            self.speed = SPEED * 2.0;
+        } else {
+            self.speed = SPEED;
+        }
+    }
+
+    pub fn update_equipment(&mut self) {
+        self.equip_menu.update();
+
         if self.equip_menu.left_selected > 0 {
-            if self.equip_menu.left_selected == Item::Cigs.index() {
+            if self.equip_menu.left_selected == (Item::Cigs as usize) {
                 self.effect.update(self.equip_menu.left_selected);
 
                 let now = std::time::Instant::now();
@@ -423,9 +437,14 @@ impl Player {
         });
 
         if self.equip_menu.left_selected > 0 {
-            if self.equip_menu.left_selected == Item::Cigs.index() {
-                self.effect.draw(self.bounds, self.equip_menu.left_selected)
+            if self.equip_menu.left_selected == (Item::Cigs as usize) {
+                self.effect.draw(self.bounds, self.equip_menu.left_selected);
             }
+        }
+
+        // Bullets
+        for bullet in &self.bullets {
+            bullet.draw();
         }
     }
 
@@ -448,6 +467,34 @@ impl Player {
             self.last_frame_update = now;
             let frames = elapsed.as_secs_f32() / self.frame_delay.as_secs_f32();
             self.frame_counter = (self.frame_counter + (frames as u32)) % max_frames;
+        }
+    }
+
+    async fn fire_weapon(&mut self) {
+        let size = match Weapon::from_index(self.equip_menu.right_selected) {
+            Some(Weapon::Empty) => Vec2::new(0.0, 0.0),
+            Some(Weapon::Handgun) => Vec2::new(64.0, 64.0),
+            None => todo!(),
+        };
+
+        let position = match self.direction {
+            Direction::Down => Vec2::new(self.bounds.center().x, self.bounds.center().y),
+            Direction::Left => Vec2::new(self.collider.x, self.collider.y - 4.0),
+            Direction::Up => Vec2::new(self.bounds.center().x, self.position.y),
+            Direction::Right => Vec2::new(self.collider.x + self.collider.w, self.collider.y - 4.0),
+        };
+
+        let direction = match self.direction {
+            Direction::Down => Vec2::new(0.0, 1.0),
+            Direction::Left => Vec2::new(-1.0, 0.0),
+            Direction::Up => Vec2::new(0.0, -1.0),
+            Direction::Right => Vec2::new(1.0, 0.0),
+        };
+
+        if self.equip_menu.right_selected == (Weapon::Handgun as usize) {
+            eprintln!("Health: {:?}", self.health);
+            let bullet = Bullet::new(position, direction, size).await;
+            self.bullets.push(bullet);
         }
     }
 }
