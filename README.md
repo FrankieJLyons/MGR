@@ -10,7 +10,6 @@ Metal Gear Rust
 
 ## TODO
 
-- Add shooting collision / timeout
 - Add punch
 - Add doors
 - Add teleport to sub room
@@ -24,6 +23,7 @@ Metal Gear Rust
 - Add speaking
 - Add Radio
 
+- Add bullet collisions
 - Add lasers
 - Add gas
 - Add cameras

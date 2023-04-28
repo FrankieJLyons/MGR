@@ -1,17 +1,22 @@
+use std::time::Duration;
+
 use macroquad::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct Bullet {
     texture: Texture2D,
-    alive: bool,
+    pub alive: bool,
     position: Vec2,
     direction: Vec2,
     size: Vec2,
     speed: f32,
+    born: std::time::Instant,
 }
 
 const SCALE: f32 = 2.0;
 const SPEED: f32 = 512.0;
+
+const LIFE: u64 = 2560;
 
 impl Bullet {
     pub async fn new(position: Vec2, direction: Vec2, size: Vec2) -> Self {
@@ -26,15 +31,20 @@ impl Bullet {
             direction,
             size,
             speed: SPEED,
+            born: std::time::Instant::now(),
         }
     }
 
     pub fn update(&mut self, delta_time: f32) {
+        let elapsed = std::time::Instant::now() - self.born;
+
+        if elapsed > Duration::from_millis(LIFE) {
+            self.alive = false;
+        }
+
         if self.alive {
             self.position.x += self.direction.x * self.speed * delta_time;
             self.position.y += self.direction.y * self.speed * delta_time;
-
-            eprintln!("Position: {:?}", self.position);
         }
     }
 

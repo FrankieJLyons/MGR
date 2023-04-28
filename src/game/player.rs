@@ -282,6 +282,7 @@ impl Player {
         for bullet in self.bullets.iter_mut() {
             bullet.update(delta_time);
         }
+        self.bullets.retain(|bullet| bullet.alive);
 
         self.settings.update();
         if self.settings.debug {
@@ -303,7 +304,7 @@ impl Player {
                 if elapsed >= Duration::from_millis(1000) {
                     if self.health > 1.0 {
                         self.health -= 1.0;
-                        eprintln!("Health: {:?}", self.health);
+                        // eprintln!("Health: {:?}", self.health);
                     }
                     self.last_effect_update = now;
                 }
