@@ -4,13 +4,14 @@ Metal Gear Rust
 
 ## Fix
 
+- Base frames on delta time not start times
 - Allow any input in any order
 - Seperate out / simplify FNS logic
 - Refactor Item ownsership / add effects class to manage drawing some things
 
 ## TODO
 
-- Add punch
+- Add punch collider
 - Add doors
 - Add teleport to sub room
 - Add Radar

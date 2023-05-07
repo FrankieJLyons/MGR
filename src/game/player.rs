@@ -16,11 +16,12 @@ pub struct Player {
     pub equip_menu: EquipMenu,
     effect: Effect,
     texture: Texture2D,
-    textures: [Texture2D; 4],
+    textures: [Texture2D; 5],
     frame_counter: u32,
     frame_delay: Duration,
     last_frame_update: std::time::Instant,
     last_effect_update: std::time::Instant,
+    last_punch_update: std::time::Instant,
     state: State,
     pub direction: Direction,
     pub position: Vec2,
@@ -39,6 +40,7 @@ enum State {
     StandingGun,
     Walking,
     WalkingGun,
+    Punching,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -54,6 +56,7 @@ const FS_STANDING: Vec2 = Vec2::new(17.0, 30.0);
 const FS_STANDING_GUN: Vec2 = Vec2::new(17.0, 30.0);
 const FS_WALKING: Vec2 = Vec2::new(17.0, 30.0);
 const FS_WALKING_GUN: Vec2 = Vec2::new(18.0, 31.0);
+const FS_PUNCHING: Vec2 = Vec2::new(20.0, 34.0);
 
 // Max Frames
 const MF_WALKING: u32 = 2;
@@ -64,6 +67,7 @@ const START_POS: Vec2 = Vec2::new(512.0 - FS_STANDING.x / 2.0, 384.0 * 8.5);
 const SCALE: f32 = 3.0;
 const SPEED: f32 = 256.0;
 const SHUTTER: u64 = 224;
+const PUNCHING: Duration = Duration::from_millis(1000);
 
 // const DEBUG_POS: Vec2 = Vec2::new(512.0 - FS_STANDING.x / 2.0 + 512.0 * 8.0, 384.0 * 4.5);
 
@@ -86,10 +90,13 @@ impl Player {
         let walking_gun_texture = load_texture("assets/snake/walking_gun.png").await.unwrap();
         walking_gun_texture.set_filter(FilterMode::Nearest);
 
+        let punching_texture = load_texture("assets/snake/punching.png").await.unwrap();
+        punching_texture.set_filter(FilterMode::Nearest);
+
         // Pattern: Up, Down, Left, Right
         let col_arr = [false, false, false, false];
 
-        let mut bullets = Vec::new();
+        let bullets = Vec::new();
 
         // Set self
         Self {
@@ -102,6 +109,7 @@ impl Player {
                 walking_texture,
                 standing_gun_texture,
                 walking_gun_texture,
+                punching_texture,
             ],
             state: State::StandingGun,
             direction: Direction::Up,
@@ -111,6 +119,7 @@ impl Player {
             frame_delay: Duration::from_millis(SHUTTER),
             last_frame_update: std::time::Instant::now(),
             last_effect_update: std::time::Instant::now(),
+            last_punch_update: std::time::Instant::now(),
             bounds: Rect::new(
                 START_POS.x,
                 START_POS.y,
@@ -154,6 +163,10 @@ impl Player {
 
                     self.col_arr = [false, false, false, false];
                 }
+
+                if is_key_pressed(KeyCode::P) {
+                    self.state = State::Punching;
+                }
             }
 
             State::StandingGun => {
@@ -175,6 +188,10 @@ impl Player {
 
                 if is_key_pressed(KeyCode::F) || is_mouse_button_pressed(MouseButton::Left) {
                     self.fire_weapon().await;
+                }
+
+                if is_key_pressed(KeyCode::P) {
+                    self.state = State::Punching;
                 }
             }
 
@@ -262,6 +279,14 @@ impl Player {
                         self.col_arr = [false, false, false, self.col_arr[3]];
                     }
                 }
+            }
+            State::Punching => {
+                if self.texture != self.textures[4] {
+                    self.texture = self.textures[4];
+                }
+                self.update_frame_counter();
+
+                self.punch().await;
             }
         }
 
@@ -402,6 +427,16 @@ impl Player {
                         ),
                 }
             }
+            State::Punching => {
+                match self.direction {
+                    Direction::Down => Rect::new(0.0, 0.0, FS_PUNCHING.x, FS_PUNCHING.y),
+                    Direction::Left => Rect::new(0.0, FS_PUNCHING.y, FS_PUNCHING.x, FS_PUNCHING.y),
+                    Direction::Up =>
+                        Rect::new(0.0, FS_PUNCHING.y * 2.0, FS_PUNCHING.x, FS_PUNCHING.y),
+                    Direction::Right =>
+                        Rect::new(0.0, FS_PUNCHING.y * 3.0, FS_PUNCHING.x, FS_PUNCHING.y),
+                }
+            }
         };
 
         // Set dest
@@ -457,10 +492,11 @@ impl Player {
 
         // Get frame limits
         let max_frames = match self.state {
-            State::Standing => 0,
+            State::Standing => 1,
             State::Walking => MF_WALKING,
-            State::StandingGun => 0,
+            State::StandingGun => 1,
             State::WalkingGun => MF_WALKING_GUN,
+            State::Punching => 1,
         };
 
         // Check frame vs time
@@ -496,6 +532,22 @@ impl Player {
             eprintln!("Health: {:?}", self.health);
             let bullet = Bullet::new(position, direction, size).await;
             self.bullets.push(bullet);
+        }
+    }
+
+    async fn punch(&mut self) {
+        // Update time vars
+        let now = std::time::Instant::now();
+        let elapsed = now - self.last_punch_update;
+
+        // Check frame vs time
+        if elapsed > PUNCHING {
+            if self.equip_menu.right_selected > 0 {
+                self.state = State::StandingGun;
+            } else {
+                self.state = State::Standing;
+            }
+            self.last_punch_update = now;
         }
     }
 }
