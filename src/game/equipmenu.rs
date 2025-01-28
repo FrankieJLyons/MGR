@@ -1,5 +1,5 @@
 use macroquad::prelude::*;
-use std::{ path::Path };
+use std::path::Path;
 
 #[derive(Debug, Clone)]
 pub struct EquipMenu {
@@ -95,71 +95,35 @@ impl EquipMenu {
         if self.pause {
             if !self.side {
                 if is_key_pressed(KeyCode::Up) {
-                    self.left_selected = self.update_index(
-                        self.left_selected as f32,
-                        1.0,
-                        ITEM_SIZE
-                    );
-                    self.left_selected_up = self.update_index(
-                        self.left_selected_up as f32,
-                        1.0,
-                        ITEM_SIZE
-                    );
-                    self.left_selected_down = self.update_index(
-                        self.left_selected_down as f32,
-                        1.0,
-                        ITEM_SIZE
-                    );
+                    self.left_selected =
+                        self.update_index(self.left_selected as f32, 1.0, ITEM_SIZE);
+                    self.left_selected_up =
+                        self.update_index(self.left_selected_up as f32, 1.0, ITEM_SIZE);
+                    self.left_selected_down =
+                        self.update_index(self.left_selected_down as f32, 1.0, ITEM_SIZE);
                 } else if is_key_pressed(KeyCode::Down) {
-                    self.left_selected = self.update_index(
-                        self.left_selected as f32,
-                        -1.0,
-                        ITEM_SIZE
-                    );
-                    self.left_selected_up = self.update_index(
-                        self.left_selected_up as f32,
-                        -1.0,
-                        ITEM_SIZE
-                    );
-                    self.left_selected_down = self.update_index(
-                        self.left_selected_down as f32,
-                        -1.0,
-                        ITEM_SIZE
-                    );
+                    self.left_selected =
+                        self.update_index(self.left_selected as f32, -1.0, ITEM_SIZE);
+                    self.left_selected_up =
+                        self.update_index(self.left_selected_up as f32, -1.0, ITEM_SIZE);
+                    self.left_selected_down =
+                        self.update_index(self.left_selected_down as f32, -1.0, ITEM_SIZE);
                 }
             } else {
                 if is_key_pressed(KeyCode::Up) {
-                    self.right_selected = self.update_index(
-                        self.right_selected as f32,
-                        1.0,
-                        WEAPON_SIZE
-                    );
-                    self.right_selected_up = self.update_index(
-                        self.right_selected_up as f32,
-                        1.0,
-                        WEAPON_SIZE
-                    );
-                    self.right_selected_down = self.update_index(
-                        self.right_selected_down as f32,
-                        1.0,
-                        WEAPON_SIZE
-                    );
+                    self.right_selected =
+                        self.update_index(self.right_selected as f32, 1.0, WEAPON_SIZE);
+                    self.right_selected_up =
+                        self.update_index(self.right_selected_up as f32, 1.0, WEAPON_SIZE);
+                    self.right_selected_down =
+                        self.update_index(self.right_selected_down as f32, 1.0, WEAPON_SIZE);
                 } else if is_key_pressed(KeyCode::Down) {
-                    self.right_selected = self.update_index(
-                        self.right_selected as f32,
-                        -1.0,
-                        WEAPON_SIZE
-                    );
-                    self.right_selected_up = self.update_index(
-                        self.right_selected_up as f32,
-                        -1.0,
-                        WEAPON_SIZE
-                    );
-                    self.right_selected_down = self.update_index(
-                        self.right_selected_down as f32,
-                        -1.0,
-                        WEAPON_SIZE
-                    );
+                    self.right_selected =
+                        self.update_index(self.right_selected as f32, -1.0, WEAPON_SIZE);
+                    self.right_selected_up =
+                        self.update_index(self.right_selected_up as f32, -1.0, WEAPON_SIZE);
+                    self.right_selected_down =
+                        self.update_index(self.right_selected_down as f32, -1.0, WEAPON_SIZE);
                 }
             }
         }
@@ -181,25 +145,25 @@ impl EquipMenu {
                 self.draw_left_item(
                     self.left_selected_up,
                     camera_position,
-                    Vec2::new(0.0, OFFSET_NEXT_Y)
+                    Vec2::new(0.0, OFFSET_NEXT_Y),
                 );
                 self.draw_left_item(self.left_selected, camera_position, Vec2::new(0.0, 0.0));
                 self.draw_left_item(
                     self.left_selected_down,
                     camera_position,
-                    Vec2::new(OFFSET_NEXT_X, 0.0)
+                    Vec2::new(OFFSET_NEXT_X, 0.0),
                 );
             } else {
                 self.draw_right_weapon(
                     self.right_selected_up,
                     camera_position,
-                    Vec2::new(0.0, OFFSET_NEXT_Y)
+                    Vec2::new(0.0, OFFSET_NEXT_Y),
                 );
                 self.draw_right_weapon(self.right_selected, camera_position, Vec2::new(0.0, 0.0));
                 self.draw_right_weapon(
                     self.right_selected_down,
                     camera_position,
-                    Vec2::new(-OFFSET_NEXT_X, 0.0)
+                    Vec2::new(-OFFSET_NEXT_X, 0.0),
                 );
             }
         } else {
@@ -215,25 +179,25 @@ impl EquipMenu {
 
     fn draw_left_item(&self, index: usize, camera_position: Vec2, offset_position: Vec2) {
         draw_texture_ex(
-            self.bg_texture,
+            &self.bg_texture,
             camera_position.x - LEFT_X_OS + offset_position.x,
             camera_position.y + Y_OS + offset_position.y,
             WHITE,
             DrawTextureParams {
                 dest_size: Some(vec2(WIDTH, HEIGHT)),
                 ..Default::default()
-            }
+            },
         );
 
         draw_texture_ex(
-            self.item_textures[index],
+            &self.item_textures[index],
             camera_position.x - LEFT_X_OS + ITEM_X_OFFSET + offset_position.x,
             camera_position.y + Y_OS + ITEM_Y_OFFSET + offset_position.y,
             WHITE,
             DrawTextureParams {
                 dest_size: Some(vec2(ITEM_WIDTH, ITEM_HEIGHT)),
                 ..Default::default()
-            }
+            },
         );
 
         draw_text(
@@ -241,31 +205,31 @@ impl EquipMenu {
             camera_position.x - LEFT_X_OS + TEXT_X_OFFSET + offset_position.x,
             camera_position.y + Y_OS + TEXT_Y_OFFSET + offset_position.y,
             24.0,
-            WHITE
+            WHITE,
         );
     }
 
     fn draw_right_weapon(&self, index: usize, camera_position: Vec2, offset_position: Vec2) {
         draw_texture_ex(
-            self.bg_texture,
+            &self.bg_texture,
             camera_position.x + RIGHT_X_0S + offset_position.x,
             camera_position.y + Y_OS + offset_position.y,
             WHITE,
             DrawTextureParams {
                 dest_size: Some(vec2(WIDTH, HEIGHT)),
                 ..Default::default()
-            }
+            },
         );
 
         draw_texture_ex(
-            self.weapon_textures[index],
+            &self.weapon_textures[index],
             camera_position.x + RIGHT_X_0S + ITEM_X_OFFSET + offset_position.x,
             camera_position.y + Y_OS + ITEM_Y_OFFSET + offset_position.y,
             WHITE,
             DrawTextureParams {
                 dest_size: Some(vec2(ITEM_WIDTH, ITEM_HEIGHT)),
                 ..Default::default()
-            }
+            },
         );
 
         draw_text(
@@ -273,7 +237,7 @@ impl EquipMenu {
             camera_position.x + RIGHT_X_0S + TEXT_X_OFFSET + offset_position.x,
             camera_position.y + Y_OS + TEXT_Y_OFFSET + offset_position.y,
             24.0,
-            WHITE
+            WHITE,
         );
     }
 }
@@ -302,12 +266,12 @@ impl Item {
         }
     }
 
-    pub fn index(&self) -> usize {
-        match self {
-            Item::Empty => 0,
-            Item::Cigs => 1,
-        }
-    }
+    // pub fn index(&self) -> usize {
+    //     match self {
+    //         Item::Empty => 0,
+    //         Item::Cigs => 1,
+    //     }
+    // }
 }
 
 #[derive(PartialEq, Clone, Copy)]

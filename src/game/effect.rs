@@ -1,13 +1,12 @@
 use macroquad::prelude::*;
-use std::{ path::Path };
-use std::{ time::Duration };
+use std::time::Duration;
 
 use super::equipmenu::Item;
 
 #[derive(Debug, Clone)]
 pub struct Effect {
     texture: Texture2D,
-    textures: [Texture2D; 1],
+    // textures: [Texture2D; 1],
     frame_counter: u32,
     frame_delay: Duration,
     last_frame_update: std::time::Instant,
@@ -26,8 +25,8 @@ impl Effect {
         smoking_texture.set_filter(FilterMode::Nearest);
 
         Self {
-            texture: smoking_texture,
-            textures: [smoking_texture],
+            texture: smoking_texture.clone(),
+            // textures: [smoking_texture],
             frame_counter: 0,
             frame_delay: Duration::from_millis(SHUTTER),
             last_frame_update: std::time::Instant::now(),
@@ -68,13 +67,19 @@ impl Effect {
             player_bounds.x + player_bounds.w / 2.0 - (src_rect.w * SCALE) / 2.0,
             player_bounds.y - src_rect.h * SCALE,
             src_rect.w * SCALE,
-            src_rect.h * SCALE
+            src_rect.h * SCALE,
         );
 
-        draw_texture_ex(self.texture, bounds.x, bounds.y, WHITE, DrawTextureParams {
-            source: Some(src_rect),
-            dest_size: Some(bounds.size()),
-            ..Default::default()
-        });
+        draw_texture_ex(
+            &self.texture,
+            bounds.x,
+            bounds.y,
+            WHITE,
+            DrawTextureParams {
+                source: Some(src_rect),
+                dest_size: Some(bounds.size()),
+                ..Default::default()
+            },
+        );
     }
 }

@@ -1,12 +1,12 @@
 [package]
 name = "mgr"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Frankie Lyons <frankiejlyons@gmail.com>"]
 edition = "2021"
 
 
 [dependencies]
-macroquad = "0.3.25"
+macroquad = "0.4.13"
 
 [profile.dev]
 opt-level = 1

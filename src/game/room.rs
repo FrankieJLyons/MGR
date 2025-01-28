@@ -31,7 +31,10 @@ impl Room {
         let texture = load_texture(&texture_path).await.unwrap();
         texture.set_filter(FilterMode::Nearest);
 
-        let position = Vec2 { x: (pos_id.x % 5.0) * MAP_WIDTH, y: pos_id.y * MAP_HEIGHT };
+        let position = Vec2 {
+            x: (pos_id.x % 5.0) * MAP_WIDTH,
+            y: pos_id.y * MAP_HEIGHT,
+        };
         let bounds = Rect::new(position.x, position.y, MAP_WIDTH, MAP_HEIGHT);
 
         let collider_path = format!("assets/rooms/colliders/{:03}.png", id);
@@ -55,16 +58,28 @@ impl Room {
     }
 
     pub fn draw(&self) {
-        draw_texture_ex(self.texture, self.bounds.x, self.bounds.y, WHITE, DrawTextureParams {
-            dest_size: Some(self.bounds.size()),
-            ..Default::default()
-        });
+        draw_texture_ex(
+            &self.texture,
+            self.bounds.x,
+            self.bounds.y,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(self.bounds.size()),
+                ..Default::default()
+            },
+        );
     }
 
     pub fn draw_debug(&self) {
         // Debug info
         self.collider_map.draw();
 
-        draw_text(&self.name, self.position.x + 16.0, self.position.y + 32.0, 64.0, WHITE);
+        draw_text(
+            &self.name,
+            self.position.x + 16.0,
+            self.position.y + 32.0,
+            64.0,
+            WHITE,
+        );
     }
 }

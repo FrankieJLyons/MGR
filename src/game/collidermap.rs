@@ -2,10 +2,9 @@ use macroquad::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct ColliderMap {
-    pub name: String,
     texture: Texture2D,
     pub colliders: Vec<Rect>,
-    parent_bounds: Rect
+    parent_bounds: Rect,
 }
 
 const SIZE: f32 = 32.0;
@@ -55,16 +54,15 @@ impl ColliderMap {
         }
 
         ColliderMap {
-            name: path.to_string(),
             texture,
             colliders,
-            parent_bounds
+            parent_bounds,
         }
     }
 
     pub fn draw(&self) {
         draw_texture_ex(
-            self.texture,
+            &self.texture,
             self.parent_bounds.x,
             self.parent_bounds.y,
             Color::new(1.0, 1.0, 1.0, 0.5),

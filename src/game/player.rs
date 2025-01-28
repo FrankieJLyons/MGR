@@ -1,12 +1,11 @@
 use macroquad::prelude::*;
-use std::{ time::Duration };
+use std::time::Duration;
 
-use crate::game::Settings;
-use crate::game::EquipMenu;
-use crate::game::Effect;
 use crate::game::Bullet;
+use crate::game::Effect;
+use crate::game::EquipMenu;
+use crate::game::Settings;
 
-use super::effect;
 use super::equipmenu::Item;
 use super::equipmenu::Weapon;
 
@@ -64,7 +63,7 @@ const MF_WALKING_GUN: u32 = 2;
 
 // Conts
 const START_POS: Vec2 = Vec2::new(512.0 - FS_STANDING.x / 2.0, 384.0 * 8.5);
-const SCALE: f32 = 3.0;
+const SCALE: f32 = 3.2;
 const SPEED: f32 = 256.0;
 const SHUTTER: u64 = 224;
 const PUNCHING: Duration = Duration::from_millis(1000);
@@ -103,7 +102,7 @@ impl Player {
             settings,
             equip_menu,
             effect,
-            texture: standing_texture,
+            texture: standing_texture.clone(),
             textures: [
                 standing_texture,
                 walking_texture,
@@ -124,13 +123,13 @@ impl Player {
                 START_POS.x,
                 START_POS.y,
                 FS_STANDING.x * SCALE,
-                FS_STANDING.y * SCALE
+                FS_STANDING.y * SCALE,
             ),
             collider: Rect::new(
                 START_POS.x,
                 START_POS.y + FS_STANDING.y * SCALE * 0.4,
                 FS_STANDING.x,
-                FS_STANDING.y * SCALE * 0.6
+                FS_STANDING.y * SCALE * 0.6,
             ),
             col_arr,
             health: 100.0,
@@ -149,14 +148,13 @@ impl Player {
         match self.state {
             State::Standing => {
                 if self.texture != self.textures[0] {
-                    self.texture = self.textures[0];
+                    self.texture = self.textures[0].clone();
                 }
 
-                if
-                    is_key_down(KeyCode::Up) ||
-                    is_key_down(KeyCode::Down) ||
-                    is_key_down(KeyCode::Left) ||
-                    is_key_down(KeyCode::Right)
+                if is_key_down(KeyCode::Up)
+                    || is_key_down(KeyCode::Down)
+                    || is_key_down(KeyCode::Left)
+                    || is_key_down(KeyCode::Right)
                 {
                     self.state = State::Walking;
                     self.frame_counter = 0;
@@ -171,14 +169,13 @@ impl Player {
 
             State::StandingGun => {
                 if self.texture != self.textures[2] {
-                    self.texture = self.textures[2];
+                    self.texture = self.textures[2].clone();
                 }
 
-                if
-                    is_key_down(KeyCode::Up) ||
-                    is_key_down(KeyCode::Down) ||
-                    is_key_down(KeyCode::Left) ||
-                    is_key_down(KeyCode::Right)
+                if is_key_down(KeyCode::Up)
+                    || is_key_down(KeyCode::Down)
+                    || is_key_down(KeyCode::Left)
+                    || is_key_down(KeyCode::Right)
                 {
                     self.state = State::WalkingGun;
                     self.frame_counter = 0;
@@ -197,14 +194,13 @@ impl Player {
 
             State::Walking => {
                 if self.texture != self.textures[1] {
-                    self.texture = self.textures[1];
+                    self.texture = self.textures[1].clone();
                 }
 
-                if
-                    !is_key_down(KeyCode::Up) &&
-                    !is_key_down(KeyCode::Down) &&
-                    !is_key_down(KeyCode::Left) &&
-                    !is_key_down(KeyCode::Right)
+                if !is_key_down(KeyCode::Up)
+                    && !is_key_down(KeyCode::Down)
+                    && !is_key_down(KeyCode::Left)
+                    && !is_key_down(KeyCode::Right)
                 {
                     self.state = State::Standing;
                     self.frame_counter = 0;
@@ -240,14 +236,13 @@ impl Player {
 
             State::WalkingGun => {
                 if self.texture != self.textures[3] {
-                    self.texture = self.textures[3];
+                    self.texture = self.textures[3].clone();
                 }
 
-                if
-                    !is_key_down(KeyCode::Up) &&
-                    !is_key_down(KeyCode::Down) &&
-                    !is_key_down(KeyCode::Left) &&
-                    !is_key_down(KeyCode::Right)
+                if !is_key_down(KeyCode::Up)
+                    && !is_key_down(KeyCode::Down)
+                    && !is_key_down(KeyCode::Left)
+                    && !is_key_down(KeyCode::Right)
                 {
                     self.state = State::StandingGun;
                     self.frame_counter = 0;
@@ -282,7 +277,7 @@ impl Player {
             }
             State::Punching => {
                 if self.texture != self.textures[4] {
-                    self.texture = self.textures[4];
+                    self.texture = self.textures[4].clone();
                 }
                 self.update_frame_counter();
 
@@ -340,103 +335,95 @@ impl Player {
     pub fn draw(&mut self) {
         // Set Src
         let src_rect = match self.state {
-            State::Standing => {
-                match self.direction {
-                    Direction::Down => Rect::new(0.0, 0.0, FS_STANDING.x, FS_STANDING.y),
-                    Direction::Left => Rect::new(0.0, FS_STANDING.y, FS_STANDING.x, FS_STANDING.y),
-                    Direction::Up =>
-                        Rect::new(0.0, FS_STANDING.y * 2.0, FS_STANDING.x, FS_STANDING.y),
-                    Direction::Right =>
-                        Rect::new(0.0, FS_STANDING.y * 3.0, FS_STANDING.x, FS_STANDING.y),
+            State::Standing => match self.direction {
+                Direction::Down => Rect::new(0.0, 0.0, FS_STANDING.x, FS_STANDING.y),
+                Direction::Left => Rect::new(0.0, FS_STANDING.y, FS_STANDING.x, FS_STANDING.y),
+                Direction::Up => Rect::new(0.0, FS_STANDING.y * 2.0, FS_STANDING.x, FS_STANDING.y),
+                Direction::Right => {
+                    Rect::new(0.0, FS_STANDING.y * 3.0, FS_STANDING.x, FS_STANDING.y)
                 }
-            }
-            State::StandingGun => {
-                match self.direction {
-                    Direction::Down => Rect::new(0.0, 0.0, FS_STANDING_GUN.x, FS_STANDING_GUN.y),
-                    Direction::Left =>
-                        Rect::new(0.0, FS_STANDING_GUN.y, FS_STANDING_GUN.x, FS_STANDING_GUN.y),
-                    Direction::Up =>
-                        Rect::new(
-                            0.0,
-                            FS_STANDING_GUN.y * 2.0,
-                            FS_STANDING_GUN.x,
-                            FS_STANDING_GUN.y
-                        ),
-                    Direction::Right =>
-                        Rect::new(
-                            0.0,
-                            FS_STANDING_GUN.y * 3.0,
-                            FS_STANDING_GUN.x,
-                            FS_STANDING_GUN.y
-                        ),
+            },
+            State::StandingGun => match self.direction {
+                Direction::Down => Rect::new(0.0, 0.0, FS_STANDING_GUN.x, FS_STANDING_GUN.y),
+                Direction::Left => {
+                    Rect::new(0.0, FS_STANDING_GUN.y, FS_STANDING_GUN.x, FS_STANDING_GUN.y)
                 }
-            }
+                Direction::Up => Rect::new(
+                    0.0,
+                    FS_STANDING_GUN.y * 2.0,
+                    FS_STANDING_GUN.x,
+                    FS_STANDING_GUN.y,
+                ),
+                Direction::Right => Rect::new(
+                    0.0,
+                    FS_STANDING_GUN.y * 3.0,
+                    FS_STANDING_GUN.x,
+                    FS_STANDING_GUN.y,
+                ),
+            },
             State::Walking => {
                 let frame = (self.frame_counter % MF_WALKING) as f32;
                 match self.direction {
-                    Direction::Down =>
-                        Rect::new(FS_WALKING.x * frame, 0.0, FS_WALKING.x, FS_WALKING.y),
-                    Direction::Left =>
-                        Rect::new(FS_WALKING.x * frame, FS_WALKING.y, FS_WALKING.x, FS_WALKING.y),
-                    Direction::Up =>
-                        Rect::new(
-                            FS_WALKING.x * frame,
-                            FS_WALKING.y * 2.0,
-                            FS_WALKING.x,
-                            FS_WALKING.y
-                        ),
-                    Direction::Right =>
-                        Rect::new(
-                            FS_WALKING.x * frame,
-                            FS_WALKING.y * 3.0,
-                            FS_WALKING.x,
-                            FS_WALKING.y
-                        ),
+                    Direction::Down => {
+                        Rect::new(FS_WALKING.x * frame, 0.0, FS_WALKING.x, FS_WALKING.y)
+                    }
+                    Direction::Left => Rect::new(
+                        FS_WALKING.x * frame,
+                        FS_WALKING.y,
+                        FS_WALKING.x,
+                        FS_WALKING.y,
+                    ),
+                    Direction::Up => Rect::new(
+                        FS_WALKING.x * frame,
+                        FS_WALKING.y * 2.0,
+                        FS_WALKING.x,
+                        FS_WALKING.y,
+                    ),
+                    Direction::Right => Rect::new(
+                        FS_WALKING.x * frame,
+                        FS_WALKING.y * 3.0,
+                        FS_WALKING.x,
+                        FS_WALKING.y,
+                    ),
                 }
             }
             State::WalkingGun => {
                 let frame = (self.frame_counter % MF_WALKING_GUN) as f32;
                 match self.direction {
-                    Direction::Down =>
-                        Rect::new(
-                            FS_WALKING_GUN.x * frame,
-                            0.0,
-                            FS_WALKING_GUN.x,
-                            FS_WALKING_GUN.y
-                        ),
-                    Direction::Left =>
-                        Rect::new(
-                            FS_WALKING_GUN.x * frame,
-                            FS_WALKING_GUN.y,
-                            FS_WALKING_GUN.x,
-                            FS_WALKING_GUN.y
-                        ),
-                    Direction::Up =>
-                        Rect::new(
-                            FS_WALKING_GUN.x * frame,
-                            FS_WALKING_GUN.y * 2.0,
-                            FS_WALKING_GUN.x,
-                            FS_WALKING_GUN.y
-                        ),
-                    Direction::Right =>
-                        Rect::new(
-                            FS_WALKING_GUN.x * frame,
-                            FS_WALKING_GUN.y * 3.0,
-                            FS_WALKING_GUN.x,
-                            FS_WALKING_GUN.y
-                        ),
+                    Direction::Down => Rect::new(
+                        FS_WALKING_GUN.x * frame,
+                        0.0,
+                        FS_WALKING_GUN.x,
+                        FS_WALKING_GUN.y,
+                    ),
+                    Direction::Left => Rect::new(
+                        FS_WALKING_GUN.x * frame,
+                        FS_WALKING_GUN.y,
+                        FS_WALKING_GUN.x,
+                        FS_WALKING_GUN.y,
+                    ),
+                    Direction::Up => Rect::new(
+                        FS_WALKING_GUN.x * frame,
+                        FS_WALKING_GUN.y * 2.0,
+                        FS_WALKING_GUN.x,
+                        FS_WALKING_GUN.y,
+                    ),
+                    Direction::Right => Rect::new(
+                        FS_WALKING_GUN.x * frame,
+                        FS_WALKING_GUN.y * 3.0,
+                        FS_WALKING_GUN.x,
+                        FS_WALKING_GUN.y,
+                    ),
                 }
             }
-            State::Punching => {
-                match self.direction {
-                    Direction::Down => Rect::new(0.0, 0.0, FS_PUNCHING.x, FS_PUNCHING.y),
-                    Direction::Left => Rect::new(0.0, FS_PUNCHING.y, FS_PUNCHING.x, FS_PUNCHING.y),
-                    Direction::Up =>
-                        Rect::new(0.0, FS_PUNCHING.y * 2.0, FS_PUNCHING.x, FS_PUNCHING.y),
-                    Direction::Right =>
-                        Rect::new(0.0, FS_PUNCHING.y * 3.0, FS_PUNCHING.x, FS_PUNCHING.y),
+            State::Punching => match self.direction {
+                Direction::Down => Rect::new(0.0, 0.0, FS_PUNCHING.x, FS_PUNCHING.y),
+                Direction::Left => Rect::new(0.0, FS_PUNCHING.y, FS_PUNCHING.x, FS_PUNCHING.y),
+                Direction::Up => Rect::new(0.0, FS_PUNCHING.y * 2.0, FS_PUNCHING.x, FS_PUNCHING.y),
+                Direction::Right => {
+                    Rect::new(0.0, FS_PUNCHING.y * 3.0, FS_PUNCHING.x, FS_PUNCHING.y)
                 }
-            }
+            },
         };
 
         // Set dest
@@ -444,7 +431,7 @@ impl Player {
             self.position.x,
             self.position.y,
             src_rect.w * SCALE,
-            src_rect.h * SCALE
+            src_rect.h * SCALE,
         );
 
         // Set collider based on destination
@@ -452,7 +439,7 @@ impl Player {
             self.bounds.x,
             self.bounds.y + self.bounds.h * 0.4,
             self.bounds.w,
-            self.bounds.h * 0.6
+            self.bounds.h * 0.6,
         );
 
         // Draw
@@ -462,15 +449,21 @@ impl Player {
                 self.collider.y,
                 self.collider.w,
                 self.collider.h,
-                Color::new(0.0, 1.0, 0.0, 0.5)
+                Color::new(0.0, 1.0, 0.0, 0.5),
             );
         }
 
-        draw_texture_ex(self.texture, self.bounds.x, self.bounds.y, WHITE, DrawTextureParams {
-            source: Some(src_rect),
-            dest_size: Some(self.bounds.size()),
-            ..Default::default()
-        });
+        draw_texture_ex(
+            &self.texture,
+            self.bounds.x,
+            self.bounds.y,
+            WHITE,
+            DrawTextureParams {
+                source: Some(src_rect),
+                dest_size: Some(self.bounds.size()),
+                ..Default::default()
+            },
+        );
 
         if self.equip_menu.left_selected > 0 {
             if self.equip_menu.left_selected == (Item::Cigs as usize) {

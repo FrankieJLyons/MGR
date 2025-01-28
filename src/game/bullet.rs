@@ -13,7 +13,7 @@ pub struct Bullet {
     born: std::time::Instant,
 }
 
-const SCALE: f32 = 2.0;
+const SCALE: f32 = 0.25;
 const SPEED: f32 = 512.0;
 
 const LIFE: u64 = 2560;
@@ -50,16 +50,22 @@ impl Bullet {
 
     pub fn draw(&self) {
         if self.alive {
-            let src_rect = Rect::new(0.0, 0.0, 4.0, 4.0);
+            let src_rect = Rect::new(0.0, 0.0, self.size.x * SCALE, self.size.y * SCALE);
 
             // Set dest
             let bounds = Rect::new(self.position.x, self.position.y, src_rect.w, src_rect.h);
 
-            draw_texture_ex(self.texture, bounds.x, bounds.y, WHITE, DrawTextureParams {
-                source: Some(src_rect),
-                dest_size: Some(bounds.size()),
-                ..Default::default()
-            });
+            draw_texture_ex(
+                &self.texture,
+                bounds.x,
+                bounds.y,
+                WHITE,
+                DrawTextureParams {
+                    source: Some(src_rect),
+                    dest_size: Some(bounds.size()),
+                    ..Default::default()
+                },
+            );
         }
     }
 }

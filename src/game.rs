@@ -1,22 +1,22 @@
 use macroquad::prelude::*;
 
-pub mod settings;
-pub mod player;
-pub mod map;
-pub mod room;
-pub mod collidermap;
-pub mod equipmenu;
-pub mod effect;
 pub mod bullet;
+pub mod collidermap;
+pub mod effect;
+pub mod equipmenu;
+pub mod map;
+pub mod player;
+pub mod room;
+pub mod settings;
 
-use self::settings::Settings;
-use self::player::Player;
-use self::map::Map;
-use self::room::Room;
-use self::collidermap::ColliderMap;
-use self::equipmenu::EquipMenu;
-use self::effect::Effect;
 use self::bullet::Bullet;
+use self::collidermap::ColliderMap;
+use self::effect::Effect;
+use self::equipmenu::EquipMenu;
+use self::map::Map;
+use self::player::Player;
+use self::room::Room;
+use self::settings::Settings;
 
 pub struct Game {
     settings: Settings,
@@ -30,14 +30,16 @@ pub struct Game {
 }
 
 impl Game {
-    pub async fn new() -> Result<Self, FileError> {
+    pub async fn new() -> Result<Self, macroquad::Error> {
         let settings = Settings::new();
 
         let player = Player::new(settings).await;
         let map = Map::new(settings, "assets/rooms/arrays/b1_f1.txt").await;
 
         let rooms = &map.rooms;
-        let found_room = rooms.iter().find(|room| room.bounds.contains(player.collider.center()));
+        let found_room = rooms
+            .iter()
+            .find(|room| room.bounds.contains(player.collider.center()));
         let current_room = found_room.unwrap().clone();
 
         let camera_position = Vec2 { x: 0.0, y: 0.0 };
@@ -80,7 +82,7 @@ impl Game {
                 self.player.position.x,
                 self.player.position.y,
                 64.0,
-                WHITE
+                WHITE,
             );
             // eprintln!("FPS: {:?}", get_fps());
         }
@@ -90,7 +92,7 @@ impl Game {
         static mut LAST_FRAME_TIME: Option<std::time::Instant> = None;
 
         let current_time = std::time::Instant::now();
-        let delta_time = match (unsafe { LAST_FRAME_TIME }) {
+        let delta_time = match unsafe { LAST_FRAME_TIME } {
             Some(last_frame_time) => current_time.duration_since(last_frame_time).as_secs_f32(),
             None => 0.0,
         };
@@ -108,18 +110,18 @@ impl Game {
         if self.settings.zoom {
             set_camera(
                 &(Camera2D {
-                    zoom: vec2(1.0 / screen_width() / 2.0, -1.0 / screen_height() / 2.0), // half zoom
+                    zoom: vec2(1.0 / screen_width() / 2.0, 1.0 / screen_height() / 2.0), // half zoom
                     target: self.camera_position,
                     ..Default::default()
-                })
+                }),
             );
         } else {
             set_camera(
                 &(Camera2D {
-                    zoom: vec2((1.0 / screen_width()) * 2.0, (-1.0 / screen_height()) * 2.0), // full view
+                    zoom: vec2((1.0 / screen_width()) * 2.0, (1.0 / screen_height()) * 2.0), // full view
                     target: self.camera_position,
                     ..Default::default()
-                })
+                }),
             );
         }
     }
@@ -128,7 +130,11 @@ impl Game {
         self.time_since_last_check += delta_time;
 
         if self.time_since_last_check >= self.check_interval {
-            if !self.current_room.bounds.contains(self.player.collider.center()) {
+            if !self
+                .current_room
+                .bounds
+                .contains(self.player.collider.center())
+            {
                 let rooms = &self.map.rooms;
                 let found_room = rooms
                     .iter()
@@ -153,16 +159,20 @@ impl Game {
                 let buffer = 0.05;
 
                 let distances = [
-                    self.player.collider
+                    self.player
+                        .collider
                         .center()
                         .distance(Vec2::new(collider.center().x, collider_b)),
-                    self.player.collider
+                    self.player
+                        .collider
                         .center()
                         .distance(Vec2::new(collider.center().x, collider.y)),
-                    self.player.collider
+                    self.player
+                        .collider
                         .center()
                         .distance(Vec2::new(collider_r, collider.center().y)),
-                    self.player.collider
+                    self.player
+                        .collider
                         .center()
                         .distance(Vec2::new(collider.x, collider.center().y)),
                 ];
