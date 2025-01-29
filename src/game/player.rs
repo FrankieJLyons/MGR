@@ -63,8 +63,8 @@ const MF_WALKING_GUN: u32 = 2;
 
 // Conts
 const START_POS: Vec2 = Vec2::new(512.0 - FS_STANDING.x / 2.0, 384.0 * 8.5);
-const SCALE: f32 = 3.2;
-const SPEED: f32 = 256.0;
+const SCALE: f32 = 4.0;
+const SPEED: f32 = 200.0;
 const SHUTTER: u64 = 224;
 const PUNCHING: Duration = Duration::from_millis(1000);
 
@@ -127,9 +127,9 @@ impl Player {
             ),
             collider: Rect::new(
                 START_POS.x,
-                START_POS.y + FS_STANDING.y * SCALE * 0.4,
-                FS_STANDING.x,
-                FS_STANDING.y * SCALE * 0.6,
+                START_POS.y + FS_STANDING.y * SCALE * 0.5,
+                FS_STANDING.x * SCALE,
+                FS_STANDING.y * SCALE * 0.5,
             ),
             col_arr,
             health: 100.0,
@@ -430,16 +430,16 @@ impl Player {
         self.bounds = Rect::new(
             self.position.x,
             self.position.y,
-            src_rect.w * SCALE,
-            src_rect.h * SCALE,
+            src_rect.w * SCALE * 0.8,
+            src_rect.h * SCALE * 0.8,
         );
 
         // Set collider based on destination
         self.collider = Rect::new(
             self.bounds.x,
-            self.bounds.y + self.bounds.h * 0.4,
+            self.bounds.y + self.bounds.h * 0.5,
             self.bounds.w,
-            self.bounds.h * 0.6,
+            self.bounds.h * 0.5,
         );
 
         // Draw
